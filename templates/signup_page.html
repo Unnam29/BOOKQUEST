@@ -52,14 +52,14 @@ font-size: 28px;
 }
 </style>
 <body>
-<form>
+<form method="POST" action=" {{ url_for('register') }}">
 <div class="formContainer">
 <h1>Sign Up Form</h1>
 <hr>
 <label for="email"><b>First Name</b></label>
-<input type="text" placeholder="Enter First Name" name="First Name" required>
+<input type="text" placeholder="Enter First Name" name="firstName" required>
 <label for="email"><b>Last Name</b></label>
-<input type="text" placeholder="Enter Email" name="Last Name" required>
+<input type="text" placeholder="Enter Email" name="lastName" required>
 <label for="email"><b>Email</b></label>
 <input type="text" placeholder="Enter Email" name="email" required>
 <label for="password"><b>Password</b></label>
