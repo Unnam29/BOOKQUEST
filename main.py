@@ -22,7 +22,7 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    return render_template('signup_page.html')
+    return render_template('login_page.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -57,6 +57,24 @@ def register():
 
     return "<h1>error message will be displayed, for improper signup deails format</h1>"
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    email = request.form['email']
+    password = request.form['password']
+
+    userWithEmail = db.session.get(User, email)
+
+    if userWithEmail == None:
+        return "<h1> user with give email doesn't exist </h1>"
+    elif password != userWithEmail.password:
+        return "<h1> Incorrect password </h1>"
+    elif not userWithEmail.password:
+        return "<h1> user not verified, redirect to verification page"
+
+    print("login successful and will be redirected to home page")
+
+
+    return "<h1> login successful and will be redirected to home page </h1>"
 
 if __name__ == '__main__':
     app.run(debug=True)
