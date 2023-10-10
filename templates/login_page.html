@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <style>
-	/*set border to the form*/
+	/set border to the form/
 	
 	form {
 		border: 3px solid #f1f1f1;
 	}
-	/*assign full width inputs*/
+	/assign full width inputs/
 	
 	input[type=text],
 	input[type=password] {
@@ -17,7 +17,7 @@
 		border: 1px solid #ccc;
 		box-sizing: border-box;
 	}
-	/*set a style for the buttons*/
+	/set a style for the buttons/
 	
 	button {
 		background-color: #4CAF50;
@@ -33,37 +33,37 @@
 	button:hover {
 		opacity: 0.8;
 	}
-	/*set extra style for the cancel button*/
+	/set extra style for the cancel button/
 	
 	.cancelbtn {
 		width: auto;
 		padding: 10px 18px;
 		background-color: #f44336;
 	}
-	/*centre the display image inside the container*/
+	/centre the display image inside the container/
 	
 	.imgcontainer {
 		text-align: center;
 		margin: 24px 0 12px 0;
 	}
-	/*set image properties*/
+	/set image properties/
 	
 	img.avatar {
 		width: 40%;
 		border-radius: 50%;
 	}
-	/*set padding to the container*/
+	/set padding to the container/
 	
 	.container {
 		padding: 16px;
 	}
-	/*set the forgot password text*/
+	/set the forgot password text/
 	
 	span.psw {
 		float: right;
 		padding-top: 16px;
 	}
-	/*set styles for span and cancel button on small screens*/
+	/set styles for span and cancel button on small screens/
 	
 	@media screen and (max-width: 300px) {
 		span.psw {
@@ -80,18 +80,18 @@
 
 	<h2>LOG INTO BOOKQUEST</h2>
 	<!--Step 1 : Adding HTML-->
-	<form action="/action_page.php">
+	<form method="POST" action=" {{ url_for('login') }}">
 		<div class="imgcontainer">
-			<img src="Image_Tilte.jpeg" 
+			<img src="../static/Image_Tilte.jpeg" 
 				alt="Avatar" class="avatar">
 		</div>
 
 		<div class="container">
-			<label><b>Username</b></label>
-			<input type="text" placeholder="Enter Username" name="uname" required>
+			<label><b>Email</b></label>
+			<input type="text" placeholder="Enter Email" name="email" required>
 
 			<label><b>Password</b></label>
-			<input type="password" placeholder="Enter Password" name="psw" required>
+			<input type="password" placeholder="Enter Password" name="password" required>
 
 			<button type="submit">Login</button>
 			<input type="checkbox" checked="checked"> Remember me
@@ -106,4 +106,3 @@
 </body>
 
 </html>
-
