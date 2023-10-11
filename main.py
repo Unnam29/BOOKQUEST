@@ -68,7 +68,7 @@ def login():
         return "<h1> user with give email doesn't exist </h1>"
     elif password != userWithEmail.password:
         return "<h1> Incorrect password </h1>"
-    elif not userWithEmail.password:
+    elif not userWithEmail.isVerified:
         return "<h1> user not verified, redirect to verification page"
 
     print("login successful and will be redirected to home page")
