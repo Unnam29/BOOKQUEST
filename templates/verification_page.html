@@ -7,9 +7,15 @@
 <body>
     <h1>Email Verification</h1>
     <p>To complete your registration, please enter the verification code sent to your email.</p>
-    <form>
+    <form method="POST" action=" {{ url_for('verify') }}">
         <input type="text" name="verification_code" placeholder="Enter Verification Code" required>
+        {% if state == "invalid" %}
+            <p style="color: red;">Invalid verification code, new code is sent to you registed mail</p>
+        {% elif state == "unverified" %}
+            <p style="color: green;">User not verified, new code is sent to you registed mail</p>
+        {% endif %}
         <button type="submit">Submit</button>
+
     </form>
 </body>
 </html>
