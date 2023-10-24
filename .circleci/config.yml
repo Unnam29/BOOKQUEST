@@ -1,5 +1,4 @@
 version: 2.1
 
-jobs:
     steps:
       - run: echo "hello world" # run the `echo` command
