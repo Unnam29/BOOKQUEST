@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  python: circleci/python@3.1.5
+  python: circleci/python@2.0.3
 
 jobs:
   build_and_test: # this can be any name you choose
