@@ -9,9 +9,7 @@ jobs:
     steps:
       - run:
         name: Checkout code
-        command: |
-          git config --global credential.helper store 
-          git clone https://janar363:${GITHUB_ACCESS_TOKEN}@github.com/janar363/BOOKQUEST.git
+        command: git config --global credential.helper store;git clone https://janar363:${GITHUB_ACCESS_TOKEN}@github.com/janar363/BOOKQUEST.git
       - run: echo "hello world"
       - run:
           name: install virtualenv
