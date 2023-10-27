@@ -9,7 +9,7 @@ jobs:
     steps:steps:
       - add_ssh_keys:
           fingerprints:
-            - SHA256:o9kmA4JWnl44uXPmSbZPfRDVBDpAamiTeVWbOb0HmV8 janardhankarravula363@gmail.com
+            - "SHA256:o9kmA4JWnl44uXPmSbZPfRDVBDpAamiTeVWbOb0HmV8 janardhankarravula363@gmail.com"
       - checkout
       - run: echo "hello world"
       - run:
