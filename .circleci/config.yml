@@ -8,15 +8,20 @@ jobs:
     executor: python/default
     steps:
       - checkout
+      - run:
+          name: install virtualenv
+          command: pip install virtualenv
+      - run:
+          name : setup virtualenv
+          command: virtualenv .venv
+      - run:
+          name: sourcing virtualenv
+          command: source .venv/bin/activate
       - python/install-packages:
           pkg-manager: pip
       - run:
-          name: Run tests
+          name: Run tests for Backend
           command: python -m pytest
-      - persist_to_workspace:
-          root: ~/project
-          paths:
-            - .
 workflows:
   test_my_app:
     jobs:
