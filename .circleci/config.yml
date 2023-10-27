@@ -7,7 +7,6 @@ jobs:
   build_and_test: # this can be any name you choose
     executor: python/default
     steps:
-      - checkout
       - run: echo "hello world"
       - run:
           name: install virtualenv
