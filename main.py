@@ -6,6 +6,18 @@ import os
 import smtplib
 import random
 from datetime import datetime
+import requests
+import json
+from turbo_flask import Turbo
+from constants import Sections, PopularBooks, PopularCoverIdxs, nextPopularBooks, nextNextPopularBooks
+from meta import popular_page
+######################## contants #############################
+SECTIONS = Sections()
+saved_covers = []
+
+
+
+
 ######################## configuring flask app #############################
 app = Flask(__name__)
 
@@ -13,7 +25,7 @@ app.secret_key = 'your_secret_key'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 
 db = SQLAlchemy(app)
-
+Turbo(app)
 
 ############################# Database ######################################
 class User(db.Model):
@@ -26,6 +38,32 @@ class User(db.Model):
     otp = db.Column(db.String(10), nullable=False)
     time = db.Column(db.DateTime, default=datetime.utcnow)
 
+# many to many relation between Book and Search
+class book_search(db.Model):
+    __tablename__ = 'book_search'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
+    search_id = db.Column(db.Integer, db.ForeignKey('search.id'), nullable=False)
+
+# Search DB
+class Search(db.Model):
+    __tablename__ = 'search'
+    id = db.Column(db.Integer, primary_key=True)
+    searchTerm = db.Column(db.String(200), unique=True, nullable=False)
+
+# User Book database to store its unique id, searches, 
+class Book(db.Model):
+    __tablename__ = 'book'
+    id = db.Column(db.Integer, primary_key=True)
+    coverId = db.Column(db.String(100), unique=True, nullable=False)
+    bookName = db.Column(db.String(200), nullable=False)
+    searches = db.relationship('Search', secondary=book_search.__tablename__, lazy='subquery',
+        backref=db.backref('books', lazy=True))
+
+# class Section(db.Model):
+#     pass
+
 with app.app_context():
     db.create_all()
 
@@ -33,20 +71,27 @@ with app.app_context():
 
 # index route always opens signup page
 @app.route('/')
-def index():
+def home():
+
+    update_saved_covers()
+    print(session.keys())
     if "temp_user" in set(session.keys()):
         print("temp user exist")
     else:
         print("temp user dosen't exist")
 
     # print("session['temp_user'] = ", session['temp_user'])
-    return render_template('signup_page.html')
+    return render_template('login_page.html')
 
 # login_page route opens login page
 @app.route('/login_page')
 def login_page():
     
     return render_template('login_page.html')
+
+@app.route('/signup_page')
+def signup_page():
+    return render_template('signup_page.html')
 
 # verification_page route opens verification page
 @app.route('/verifcation_page')
@@ -58,6 +103,139 @@ def verification_page():
 @app.route('/forgot_password_page')
 def forgot_password_page():
     return render_template('/forgot_password_page.html', state='valid')
+
+@app.route('/home_page')
+def home_page():
+    global saved_covers 
+
+    update_saved_covers()
+    cover_ids = []
+    book_names = []
+    unsaved_covers = []
+
+    if SECTIONS.CURRENT_SECTION == SECTIONS.POPULARP_PRODUCTS:
+        
+        for i in range(len(PopularBooks)):
+            popularBook = PopularBooks[i]
+
+            print("current popular book = ", popularBook)
+            recived_book_names, recived_cover_ids = search(popularBook)
+            print("recived_book_names = ", recived_book_names)
+            if len(recived_book_names) >= PopularCoverIdxs[i]:
+                book_names.append(recived_book_names[PopularCoverIdxs[i]])    
+                cover_ids.append(recived_cover_ids[PopularCoverIdxs[i]])
+            else:
+                book_names.append(recived_book_names[0])    
+                cover_ids.append(recived_cover_ids[0])
+            
+            if cover_ids[-1] not in saved_covers:
+                unsaved_covers.append(cover_ids[-1])
+
+        if popular_page >= 2: 
+            for i in range(len(nextPopularBooks)):
+                popularBook = nextPopularBooks[i]
+
+                print("current popular book = ", popularBook)
+                recived_book_names, recived_cover_ids = search(popularBook)
+                
+                book_names.append(recived_book_names[0])    
+                cover_ids.append(recived_cover_ids[0])
+                
+                if cover_ids[-1] not in saved_covers:
+                    unsaved_covers.append(cover_ids[-1])
+
+        if popular_page == 3: 
+            for i in range(len(nextNextPopularBooks)):
+                popularBook = nextNextPopularBooks[i]
+
+                print("current popular book = ", popularBook)
+                recived_book_names, recived_cover_ids = search(popularBook)
+                
+                book_names.append(recived_book_names[0])    
+                cover_ids.append(recived_cover_ids[0])
+                
+                if cover_ids[-1] not in saved_covers:
+                    unsaved_covers.append(cover_ids[-1])
+
+        
+        print("unsaved_cover = ", unsaved_covers)
+        print("#################################### END OF UNSAVED COVERS ####################################")
+        if len(unsaved_covers) != 0:
+            for unsaved_cover in unsaved_covers:
+                fetchCovers(unsaved_cover)
+    elif SECTIONS.CURRENT_SECTION == SECTIONS.EXPLORE:
+        
+        pass
+    # fetchCovers(cover_ids)
+    print(book_names)
+    print(cover_ids)
+    return render_template('home_page.html',
+                            book_names=book_names,
+                              cover_ids=cover_ids,
+                                sections=SECTIONS.getSections(),
+                                  current_section=SECTIONS.CURRENT_SECTION,
+                                  page=popular_page)
+
+@app.route('/update_home_page')
+def update_home_page():
+    global saved_covers
+
+    update_saved_covers()
+    cover_ids = []
+    book_names = []
+    unsaved_covers = []
+
+    if SECTIONS.CURRENT_SECTION == SECTIONS.POPULARP_PRODUCTS:
+        
+        for i in range(len(PopularBooks)):
+            popularBook = PopularBooks[i]
+
+            print("current popular book = ", popularBook)
+            recived_book_names, recived_cover_ids = search(popularBook)
+            print("recived_book_names = ", recived_book_names)
+            if len(recived_book_names) >= PopularCoverIdxs[i]:
+                book_names.append(recived_book_names[PopularCoverIdxs[i]])    
+                cover_ids.append(recived_cover_ids[PopularCoverIdxs[i]])
+            else:
+                book_names.append(recived_book_names[0])    
+                cover_ids.append(recived_cover_ids[0])
+            
+            if cover_ids[-1] not in saved_covers:
+                unsaved_covers.append(cover_ids[-1])
+
+        if popular_page >= 2: 
+            print("popular page = 2")
+            for i in range(len(nextPopularBooks)):
+                popularBook = nextPopularBooks[i]
+
+                print("current popular book = ", popularBook)
+                recived_book_names, recived_cover_ids = search(popularBook)
+                
+                book_names.append(recived_book_names[0])    
+                cover_ids.append(recived_cover_ids[0])
+                
+                if cover_ids[-1] not in saved_covers:
+                    unsaved_covers.append(cover_ids[-1])
+        else:
+            print("popular page = ", popular_page)
+
+        
+        print("unsaved_cover = ", unsaved_covers)
+        print("#################################### END OF UNSAVED COVERS ####################################")
+        if len(unsaved_covers) != 0:
+            for unsaved_cover in unsaved_covers:
+                fetchCovers(unsaved_cover)
+    elif SECTIONS.CURRENT_SECTION == SECTIONS.EXPLORE:
+        
+        pass
+    # fetchCovers(cover_ids)
+    print(book_names)
+    print(cover_ids)
+    return render_template('home_page.html',
+                            book_names=book_names,
+                                cover_ids=cover_ids,
+                                sections=SECTIONS.getSections(),
+                                    current_section=SECTIONS.CURRENT_SECTION)
 
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
@@ -121,9 +299,13 @@ def login():
         return render_template('verification_page.html', state="unverified")
 
     print("login successful and will be redirected to home page")
-
+    
+    session.clear()
+    session['loggedIn'] = True
+    session['user'] = email
+    print(session)
     # if all of the above failuer cases fail user will be directed to homepage
-    return "<h1> login successful and will be redirected to home page </h1>"
+    return redirect('/home_page')
 
 # verify route takes care of user verification during signup and reset password processes
 @app.route('/verify', methods=['GET', 'POST'])
@@ -162,8 +344,11 @@ def verify():
         if "forgot verify" in set(session.keys()): 
             session['forgot email'] = email
             return render_template("forgot_password_page.html")
-         
-        return "<h1>otp matched, will be redirected to homepage</h1>"
+        
+        session.clear()
+        session['loggedIn'] = True
+        session['user'] = email
+        return redirect('/home_page')
     else: # if otp mis-matched they error message will be dispalyed 
         return render_template("verification_page.html", state="invalid")
 
@@ -184,7 +369,26 @@ def update_password():
     else: # if passwords mis-match error message will be displayed
         return render_template('forgot_password_page.html', state='invalid')
 
+@app.route('/nextPageClicked/<section>', methods=['GET', 'POST'])
+def nextPageClicked(section):
+    global explore_page, recommendation_page, popular_page
+    print("nextPage cliecked")
 
+    if section == SECTIONS.POPULARP_PRODUCTS:
+        if popular_page == 1:
+            popular_page = 2
+        
+        elif popular_page == 2:
+            popular_page = 3
+        
+    return redirect('/home_page')
+
+@app.route('/sectionClicked/<section>', methods=['GET', 'POST'])
+def sectionClicked(section):
+
+    SECTIONS.CURRENT_SECTION = section
+
+    return redirect('/home_page')
 ################################## helper functions #################################
 # used to send verification mail to user
 def send_notification(userEmail):
@@ -200,7 +404,130 @@ def send_notification(userEmail):
         
     return verification_code
     
+def search(book_name):
+    # if already searched return previous result
+    searchItem = Search.query.filter_by(searchTerm=book_name).first()
+    print("searchItem = ", searchItem)
+    if searchItem != None:
+        print("ENTERED IF\n\n")
+        print("search Id = ", searchItem.id)
+        bookResults = [db.session.query(Book).filter(Book.id == book_search_item.book_id).first() for book_search_item in db.session.query(book_search).filter(book_search.search_id == searchItem.id).all()]
+
+        # print("search ids = ", [book_search_item.id for book_search_item in db.session.query(book_search).filter(book_search.search_id == searchItem.id).all()])
+        book_names = [bookResult.bookName for bookResult in bookResults]
+        cover_ids = [bookResult.coverId for bookResult in bookResults]
+
+        return book_names, cover_ids
+
+    print("NOT ENTERED IF \n\n\n")
+
+    ##### else return new search result and save it in db
+
+    # saving new searchTerm
+    searchItem = Search(id=len(Search.query.all())+1, 
+                        searchTerm=book_name)
+    db.session.add(searchItem)
+    db.session.commit()
+
+    # getting search results
+    response = requests.get(
+      'https://openlibrary.org/search.json?q={}'.format(book_name)
+    )
+
+    if response.status_code != 200:
+        raise Exception('Failed to search Open Library: {} {}'.format(
+            response.status_code, response.content
+    ))
+
+    # Parse the JSON response.
+    books = json.loads(response.content)['docs']
+
+
+    # Get a list of book names.
+    book_names = []
+    cover_ids = []
+
+    for book in books:
+        
+        if 'cover_i' in book:
+            book_names.append(book['title'])
+            cover_ids.append(book['cover_i'])
+            print(book['cover_i'])
+
+            # if book already exist in table just create new association with search
+            existingBook = db.session.query(Book).filter(Book.bookName == book['title']).first()
+
+            if existingBook != None:
+                new_book_search = book_search(id=len(book_search.query.all())+1,book_id=existingBook.id, 
+                            search_id=searchItem.id)
+                db.session.add(new_book_search)
+            else: # else create new book and then create association with search
+                newBook = Book(id=len(Book.query.all())+1,
+                               bookName=book['title'],
+                               coverId=book['cover_i'])
+                db.session.add(newBook)
+                
+                print("newBook.id = ", newBook.id)
+                print("searccItem.id = ", searchItem.id)
+                new_book_search = book_search(id=len(book_search.query.all())+1, book_id=newBook.id, 
+                            search_id=searchItem.id)
+                
+                db.session.add(new_book_search)
+            
+            db.session.commit()
+
+    return book_names, cover_ids
+
+def fetchCovers(cover_ids):
+    cover_ids = [cover_ids]
+    for cover_id in cover_ids:
+        print("cover_id = ", cover_id)
+        # break
+        cover_image_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
+        # image_directory = os.path.join(home_directory, "images")
+        # if not os.path.exists(image_directory):
+        #     os.mkdir(image_directory)
+
+        # Download the cover image.
+        response = requests.get(cover_image_url)
+
+        image_directory = os.path.join('/Users/janardhankarravula/Developer/masters/sem2-PSD/BOOKQUEST/static', "covers")
+        if not os.path.exists(image_directory):
+            os.mkdir(image_directory)
+
+        # Check the response status code.
+        if response.status_code != 200:
+            raise Exception('Failed to download cover image: {} {}'.format(
+                response.status_code, response.content
+            ))
+
+        # Save the cover image to a file.
+        with open(os.path.join(image_directory, f"{cover_id}.jpg"), 'wb') as f:
+            f.write(response.content)
+
+        update_saved_covers()
+
+def getSavedCovers(directory_path):
+
+  filenames = []
+
+  for filename in os.listdir(directory_path):
+    # Filter out directories.
+    if not os.path.isdir(os.path.join(directory_path, filename)):
+      # Remove the extension.
+      filename_without_extension = os.path.splitext(filename)[0]
+      # Add the filename to the list.
+      filenames.append(filename_without_extension)
+
+  return filenames
+
+def update_saved_covers():
+    global saved_covers
+
+    saved_covers = set(getSavedCovers('static/covers'))
 # send_notification("pythontest363@gmail.com")
+
+# book_names, cover_ids = search("3 mistakes of my life")
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -5,14 +5,16 @@
 	<meta charset="UTF-8">
 	<title>BOOKQUEST</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="home_page.css">
+	<link rel="stylesheet" href="../static/home_page.css">
 	<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
 </head>
 
 <body>
 	<header>
 		<nav id="nav">
-			<div class="logo nav-common" width="10px" height="20px"><img src="../static/Logo_image.png" alt="brand-logo"></div>
+			<div class="logo nav-common" width="10px" height="20px">
+				<img src="../static/Logo_image.jpg" alt="brand-logo">
+			</div>
 			<ul class="nav-common">
 				<li><a href="#">home</a></li>
 				<li><a href="#products">products</a></li>
@@ -25,18 +27,48 @@
 		</nav>
 		
 	</header>
-	<section id="">
+
+	<!-- <section id="">
 		<div class="container">
 			<div class="">
 				<h1>Book collection</h1>
 				<p class="description"></p>
-				<a href="#"></a> </div>
+				<a href="#"></a> 
+			</div>
 			<div class="sc-media">
 				<div class="sc-media-bg"> <img src="../static/Image_Tilte.jpeg" alt="sc-image" /> </div>
 			</div>
 		</div>
-	</section>
-	<section id="products">
+	</section> -->
+	<ul class="section-switcher">
+		{% for i in range(sections|length) %}
+			{% if sections[i] != current_section %}
+				<li><a href="{{ url_for('sectionClicked', section=sections[i]) }}">{{ sections[i] }}</a></li>
+			{% else %}
+				<li><a class="selected-section">{{ sections[i] }}</a></li>
+			{% endif %}
+		{% endfor %}
+	</ul>
+	<turbo-frame id="products">
+		<div class="container">
+			{% for i in range(book_names|length) %}
+			{% if book_names|length - i == 4 %}
+				<script>
+				document.body.scrollTop = document.body.scrollHeight;
+			</script>
+			{% endif %}
+			<div class="product">
+				<figure> <img src="../static/covers/{{cover_ids[i]}}.jpg " alt="product-image">
+					<figcaption>{{book_names[i]}}</figcaption>
+					<figcaption>40.00$</figcaption>
+				</figure>
+			</div>
+			{% endfor %}
+		</div>
+		<a href="{{url_for('nextPageClicked', section=current_section)}}"><button> Next </button></a>
+	</turbo-frame>
+	
+	<!-- <section id="products">
 		<div class="container">
 			<div class="products-header">
 				<h2>popular products</h2>
@@ -67,7 +99,7 @@
 				</figure>
 			</div>
 		</div>
-	</section>
+	</section> -->
 	<section id="contact">
 		<div class="container">
 			<h4>cantact us</h4>
@@ -83,6 +115,7 @@
 		<p>license</p>
 	</footer>
 	<div class="back-to-top"><a href="#nav"> <img title="Back to Top." src="https://res.cloudinary.com/de8cuyd0n/image/upload/v1520412541/E-commerce%20landing%20page/icons/back_-_top_1x.png" alt="back to top"></a> </div>
+	
 </body>
 
 </html>

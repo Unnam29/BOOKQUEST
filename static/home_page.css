@@ -906,3 +906,37 @@ footer .copy-right {
 	background-color: rgba(255, 255, 255, 0.4);
 	opacity: 1;
 }
+
+
+/* test */
+
+.section-switcher {
+	margin: 20px auto;
+	width: 50%;
+	text-align: center;
+
+	display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-gap: 10px;
+  }
+  
+  .section-switcher li {
+	list-style-type: none;
+	display: inline-block;
+	padding: 10px;
+  }
+  
+  .section-switcher li a {
+	color: black;
+	text-decoration: none;
+  }
+  
+  .section-switcher li a:hover {
+	color: red;
+  }
+
+  .selected-section {
+	/* color: white; */
+	font-weight: bolder;
+	font-size: 20px;
+  }
