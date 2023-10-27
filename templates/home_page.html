@@ -58,10 +58,12 @@
 			</script>
 			{% endif %}
 			<div class="product">
+				<a href="{{ url_for('product_page', coverId=cover_ids[i] | int) }}">
 				<figure> <img src="../static/covers/{{cover_ids[i]}}.jpg " alt="product-image">
 					<figcaption>{{book_names[i]}}</figcaption>
 					<figcaption>40.00$</figcaption>
 				</figure>
+				</a>
 			</div>
 			{% endfor %}
 		</div>
