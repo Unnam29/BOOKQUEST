@@ -18,9 +18,12 @@ def test_client():
     ctx.pop()
 
 def test_signup(test_client):
-    form_data = {'firstName': 'test', 'lastName': 'test', 'email': 'janardhankarravula@gmail.com', 'password': 'test', 'confirmPassword': 'test'}
+    form_data = {'firstName': 'test', 'lastName': 'test', 'email': 'janardhankarriavula@gmail.com', 'password': 'test', 'confirmPassword': 'test'}
     response = app.test_client().post('/register', data=form_data)
     
     with app.app_context():
         registered_user = db.session.get(User, form_data['email'])
         assert registered_user.firstName == form_data['firstName']
+        db.session.delete(registered_user)
+
+        db.session.commit()
