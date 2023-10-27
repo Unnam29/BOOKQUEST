@@ -27,13 +27,3 @@ workflows:
     jobs:
       - hello-job
 
-version: 2.1
-
-jobs:
-  build:
-    macos:
-      xcode: 13.4.1
-
-    steps:
-      - checkout
-     
