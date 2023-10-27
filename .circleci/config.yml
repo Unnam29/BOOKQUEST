@@ -1,29 +1,26 @@
 version: 2.1
 
 jobs:
-  hello-job:
+  hello:
     macos:
       xcode: 13.4.1
-    steps: # check out the code in the project directory
-      - run: echo "hello world" # run the `echo` command
+    steps:
+      - run: echo "Hello World"
+
+  install_python:
+    macos:
+      xcode: 13.4.1 
+    steps:
+      - checkout
       - run:
-        name: Install Python
-        command: pyenv install 3.10.11
+          name: Install Python
+          command: |
+            pyenv install 3.10.11
+            pyenv global 3.10.11
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
-      - run: 
-          name: Install dependencies
-          command: pip install -r requirements.txt
-      - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
-          paths:
-            - ".venv"
-      - run:
-          name: Run tests
-          command: pytest
-
 workflows:
-  my-workflow:
+  main:
     jobs:
-      - hello-job
-
+      - hello
+      - install_python
