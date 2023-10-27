@@ -1,26 +1,24 @@
 version: 2.1
 
-jobs:
-  hello:
-    macos:
-      xcode: 13.4.1
-    steps:
-      - run: echo "Hello World"
+orbs:
+  python: circleci/python@3.19.4
 
-  install_python:
-    macos:
-      xcode: 13.4.1 
+jobs:
+  build_and_test: # this can be any name you choose
+    executor: python/default
     steps:
       - checkout
+      - python/install-packages:
+          pkg-manager: pip
       - run:
-          name: Install Python
-          command: |
-            pyenv install 3.10.11
-            pyenv global 3.10.11
-      - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          name: Run tests
+          command: python -m pytest
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - .
 workflows:
-  main:
+  test_my_app:
     jobs:
-      - hello
-      - install_python
+      - build_and_test
+
