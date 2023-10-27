@@ -8,7 +8,6 @@ import random
 from datetime import datetime
 import requests
 import json
-from turbo_flask import Turbo
 from constants import Sections, PopularBooks, PopularCoverIdxs, nextPopularBooks, nextNextPopularBooks
 from meta import popular_page
 ######################## contants #############################
@@ -25,7 +24,6 @@ app.secret_key = 'your_secret_key'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 
 db = SQLAlchemy(app)
-Turbo(app)
 
 ############################# Database ######################################
 class User(db.Model):
