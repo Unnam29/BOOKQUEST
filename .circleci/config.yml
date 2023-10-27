@@ -8,6 +8,7 @@ jobs:
     executor: python/default
     steps:
       - checkout
+      - run: echo "hello world"
       - run:
           name: install virtualenv
           command: pip install virtualenv
