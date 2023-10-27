@@ -7,9 +7,6 @@ jobs:
   build_and_test: # this can be any name you choose
     executor: python/default
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "SHA256:o9kmA4JWnl44uXPmSbZPfRDVBDpAamiTeVWbOb0HmV8 janardhankarravula363@gmail.com"
       - checkout
       - run: echo "hello world"
       - run:
