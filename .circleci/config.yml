@@ -10,9 +10,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - SHA256:o9kmA4JWnl44uXPmSbZPfRDVBDpAamiTeVWbOb0HmV8 janardhankarravula363@gmail.com
-      - run:
-        name: Checkout code
-        command: git config --global credential.helper store;git clone https://janar363:${GITHUB_ACCESS_TOKEN}@github.com/janar363/BOOKQUEST.git
+      - checkout
       - run: echo "hello world"
       - run:
           name: install virtualenv
