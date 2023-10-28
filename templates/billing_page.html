@@ -54,6 +54,21 @@
                         <textarea class="form-control" id="address" placeholder="Enter your address" required></textarea>
                     </div>
                     <div class="form-group">
+                        <label for="phoneNumber">Phone Number:</label>
+                        <input type="text" class="form-control" id="creditCard" placeholder="(390)-312-994" maxlength="10" required>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <label>Select Your Credit Card Type</label>
+                            <select id="selection" class="form-control">
+                                <option value="option1">Master</option>
+                                <option value="option2">Visa</option>
+                                <option value="option3">Chase</option>
+                            </select>
+                            <div id="result" class="mt-3"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="creditCard">Credit Card Number:</label>
                         <input type="text" class="form-control" id="creditCard" placeholder="1234 5678 1234 5678" maxlength="19" required>
                     </div>
