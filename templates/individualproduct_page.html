@@ -47,15 +47,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 </head>
 <body>
+    
     <!-- Product Details Section -->
     <section id="product-details" class="container mt-5">
         <div class="row">
             <div class="col-md-6">
-                <img src="../static/Cn_textbook.jpeg" alt="Book Image" class="img-fluid">
+                <img src="../static/covers/{{coverId}}.jpg" alt="Book Image" class="img-fluid">
             </div>
             <div class="col-md-6">
                 <h2>Book Title</h2>
-                <h3>Computer Networks</h3>
+                <h3>{{ book.bookName }}</h3>
                 <p>Author Name</p>
                 <p>Andrew S.Tanenbaum, David J.Wetherall</J></p>
                 <p>Price: $35.50</p>

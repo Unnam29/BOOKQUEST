@@ -23,11 +23,23 @@
                 <li><a href="#subscription">Subscribe</a></li>
 			</ul>
 			<div class="cart nav-icon nav-common"><img src="https://res.cloudinary.com/de8cuyd0n/image/upload/v1520412544/E-commerce%20landing%20page/icons/shopping_cart_1x.png" alt="shopping-cart"></div>
-			<div class="menu nav-icon nav-common"><img src="https://res.cloudinary.com/de8cuyd0n/image/upload/v1520412543/E-commerce%20landing%20page/icons/menu_1x.png" alt="hamburger-menu"></div>
+			<div class="menu nav-icon nav-common"><a href="{{ url_for('logout') }}">logout</a></div>
 		</nav>
 		
 	</header>
 
+	<!-- <section id="">
+		<div class="container">
+			<div class="">
+				<h1>Book collection</h1>
+				<p class="description"></p>
+				<a href="#"></a> 
+			</div>
+			<div class="sc-media">
+				<div class="sc-media-bg"> <img src="../static/Image_Tilte.jpeg" alt="sc-image" /> </div>
+			</div>
+		</div>
+	</section> -->
 	<ul class="section-switcher">
 		{% for i in range(sections|length) %}
 			{% if sections[i] != current_section %}
@@ -46,7 +58,7 @@
 			</script>
 			{% endif %}
 			<div class="product">
-				<a href="{{ url_for('product_page', coverId=cover_ids[i] | int) }}">
+				<a href="{{ url_for('individualproduct_page', coverId=cover_ids[i] | int) }}">
 				<figure> <img src="../static/covers/{{cover_ids[i]}}.jpg " alt="product-image">
 					<figcaption>{{book_names[i]}}</figcaption>
 					<figcaption>40.00$</figcaption>
@@ -58,7 +70,38 @@
 		<a href="{{url_for('nextPageClicked', section=current_section)}}"><button> Next </button></a>
 	</turbo-frame>
 	
-	
+	<!-- <section id="products">
+		<div class="container">
+			<div class="products-header">
+				<h2>popular products</h2>
+				<p> Welcome to Bookquest your one stop destination to all your book queries and worries</p>
+			</div>
+			<div class="product product-1">
+				<figure> <img src="../static/Cmpscience_textbook.jpeg" alt="product-image">
+					<figcaption>Computer Science Textbook</figcaption>
+					<figcaption>40.00$</figcaption>
+				</figure>
+			</div>
+			<div class="product product-2">
+				<figure> <img src="../static/Cn_textbook.jpeg" alt="product-image">
+					<figcaption>Computer Networks textbook</figcaption>
+					<figcaption>35.50$</figcaption>
+				</figure>
+			</div>
+			<div class="product product-3">
+				<figure> <img src="../static/dbms_textbook.jpeg" alt="product-image">
+					<figcaption>DataBases Textbook</figcaption>
+					<figcaption>70.32$</figcaption>
+				</figure>
+			</div>
+			<div class="product product-4">
+				<figure> <img src="../static/novel_book.jpeg" alt="product-image">
+					<figcaption>3 Mistakes of my life</figcaption>
+					<figcaption>89.00$</figcaption>
+				</figure>
+			</div>
+		</div>
+	</section> -->
 	<section id="contact">
 		<div class="container">
 			<h4>cantact us</h4>
