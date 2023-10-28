@@ -18,7 +18,7 @@ saved_covers = []
 
 
 ######################## configuring flask app #############################
-app = Flask(__name__)
+app = Flask(_name_)
 
 app.secret_key = 'your_secret_key'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
@@ -38,7 +38,7 @@ class User(db.Model):
 
 # many to many relation between Book and Search
 class book_search(db.Model):
-    __tablename__ = 'book_search'
+    _tablename_ = 'book_search'
     
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
@@ -46,17 +46,17 @@ class book_search(db.Model):
 
 # Search DB
 class Search(db.Model):
-    __tablename__ = 'search'
+    _tablename_ = 'search'
     id = db.Column(db.Integer, primary_key=True)
     searchTerm = db.Column(db.String(200), unique=True, nullable=False)
 
 # User Book database to store its unique id, searches, 
 class Book(db.Model):
-    __tablename__ = 'book'
+    _tablename_ = 'book'
     id = db.Column(db.Integer, primary_key=True)
     coverId = db.Column(db.String(100), unique=True, nullable=False)
     bookName = db.Column(db.String(200), nullable=False)
-    searches = db.relationship('Search', secondary=book_search.__tablename__, lazy='subquery',
+    searches = db.relationship('Search', secondary=book_search._tablename_, lazy='subquery',
         backref=db.backref('books', lazy=True))
 
 # class Section(db.Model):
@@ -234,6 +234,12 @@ def update_home_page():
                                 cover_ids=cover_ids,
                                 sections=SECTIONS.getSections(),
                                     current_section=SECTIONS.CURRENT_SECTION)
+
+@app.route('/individualproduct_page/<coverId>', methods=["GET", "POST"])
+def individualproduct_page(coverId):
+
+    current_book = db.session.query(Book).filter(Book.coverId == coverId).first()
+    return render_template("individualproduct_page.html", coverId=coverId, book=current_book)
 
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
@@ -527,6 +533,5 @@ def update_saved_covers():
 
 # book_names, cover_ids = search("3 mistakes of my life")
 
-if __name__ == '__main__':
+if _name_ == '_main_':
     app.run(debug=True)
-
