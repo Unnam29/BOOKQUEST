@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #product-details {
+            background-color: #f7f7f7;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #item-description {
+            padding: 40px;
+        }
+
+        .rating {
+            display: inline-block;
+        }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            color: #ddd;
+            font-size: 30px;
+            padding: 0 2px;
+            cursor: pointer;
+        }
+
+        .rating label:hover,
+        .rating label:hover ~ label,
+        .rating input:checked ~ label {
+            color: #ffcc00;
+        }
+    </style>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+</head>
+<body>
+    <!-- Product Details Section -->
+    <section id="product-details" class="container mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <img src="../static/covers/{{coverId}}.jpg" alt="Book Image" class="img-fluid">
+            </div>
+            <div class="col-md-6">
+                <h2>Book Title</h2>
+                <h3>{{ book.bookName }}</h3>
+                <p>Author Name</p>
+                <p>Andrew S.Tanenbaum, David J.Wetherall</J></p>
+                <p>Price: $35.50</p>
+                <p>Description: Computer Networks, 5/e is appropriate for Computer Networking or Introduction to Networking courses at both the undergraduate and graduate level in Computer Science, Electrical Engineering, CIS, MIS, and Business Departments.</p>
+                <button id="addToCartBtn" class="btn btn-primary mr-2">Add to Cart</button>
+                <button id="addToWishlistBtn" class="btn btn-secondary">Add to Wishlist</button>
+            </div>
+        </div>
+    </section>
+    <!-- Item Description Section -->
+    <section id="item-description" class="container mt-5">
+        <h3>Item Description</h3>
+        <p>Computer Networks, 5/e is appropriate for Computer Networking or Introduction to Networking courses at both the undergraduate and graduate level in Computer Science, Electrical Engineering, CIS, MIS, and Business Departments. Tanenbaum takes a structured approach to explaining how networks work from the inside out. He starts with an explanation of the physical layer of networking, computer hardware and transmission systems; then works his way up to network applications. Tanenbaum's in-depth application coverage includes email; the domain name system; the World Wide Web (both client- and server-side); and multimedia (including voice over IP, Internet radio video on demand, video conferencing, and streaming media. Each chapter follows a consistent approach: Tanenbaum presents key principles, then illustrates them utilizing real-world example networks that run through the entire book―the Internet, and wireless networks, including Wireless LANs, broadband wireless and Bluetooth. The Fifth Edition includes a chapter devoted exclusively to network security. The textbook is supplemented by a Solutions Manual, as well as a Website containing PowerPoint slides, art in various forms, and other tools for instruction, including a protocol simulator whereby students can develop and test their own network protocols.</p>
+        <h3>Author Details</h3>
+        <p>Author Name is a renowned author with several best-selling books to their name.</p>
+    </section>
+     <!-- Rating and Review Form -->
+     <section id="rating-review" class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2>Rate and Review</h2>
+                <form id="ratingReviewForm">
+                    <div class="form-group">
+                        <label for="rating">Rating:</label>
+                        <div class="rating">
+                            <input type="radio" id="star5" name="rating" value="5" required>
+                            <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star4" name="rating" value="4">
+                            <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star3" name="rating" value="3">
+                            <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star2" name="rating" value="2">
+                            <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star1" name="rating" value="1">
+                            <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="review">Review:</label>
+                        <textarea class="form-control" id="review" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script>
+                $(document).ready(function() {
+            $('#ratingReviewForm').submit(function(e) {
+                e.preventDefault();
+                let rating = $('input[name="rating"]:checked').val();
+                let review = $('#review').val();
+                alert('Rating: ' + rating + '\nReview: ' + review);
+            });
+        });
+    </script>
+</body>
+</html>
