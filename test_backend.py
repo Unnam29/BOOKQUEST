@@ -1,4 +1,5 @@
 import pytest
+from flask import Flask
 from main import app, db, User
 # @pytest.mark.parametrize("input,expected", [
 #     ({"firstName"},)
@@ -55,7 +56,20 @@ def test_update_password(test_client):
 
         db.session.commit()
 
+    def client():
+        app.config['TESTING'] = True
+        with app.test_client() as client:
+            yield client
 
+    def test_next_page_clicked_popular_page_1(client):
+        response = client.get('/nextPageClicked/POPULARP_PRODUCTS')
+        
+        # Ensure the route redirects to '/home_page'
+        assert response.status_code == 302
+        assert response.location == 'http://localhost/home_page'
+    
+    def test_next_page_clicked_invalid_section(client):
+        response = client.get('/nextPageClicked/INVALID_SECTION')
 
-
-
+        # Ensure the route returns a 404 status code for an invalid section
+        assert response.status_code == 404
