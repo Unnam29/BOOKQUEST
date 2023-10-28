@@ -73,3 +73,7 @@ def test_update_password(test_client):
 
         # Ensure the route returns a 404 status code for an invalid section
         assert response.status_code == 404
+    def test_logout(test_client):
+         response = test_client.get('/logout')
+         with test_client.session_transaction() as session:
+              assert session['loggedIn'] == False
