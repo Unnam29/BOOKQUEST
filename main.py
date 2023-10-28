@@ -14,9 +14,6 @@ from meta import popular_page
 SECTIONS = Sections()
 saved_covers = []
 
-
-
-
 ######################## configuring flask app #############################
 app = Flask(__name__)
 
@@ -235,6 +232,12 @@ def update_home_page():
                                 sections=SECTIONS.getSections(),
                                     current_section=SECTIONS.CURRENT_SECTION)
 
+@app.route('/individualproduct_page/<coverId>', methods=["GET", "POST"])
+def individualproduct_page(coverId):
+
+    current_book = db.session.query(Book).filter(Book.coverId == coverId).first()
+    return render_template("individualproduct_page.html", coverId=coverId, book=current_book)
+
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
@@ -366,6 +369,13 @@ def update_password():
         return redirect('/login_page')
     else: # if passwords mis-match error message will be displayed
         return render_template('forgot_password_page.html', state='invalid')
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    session['loggedIn'] = False
+    session.pop('user')
+
+    return redirect('/login_page')
 
 @app.route('/nextPageClicked/<section>', methods=['GET', 'POST'])
 def nextPageClicked(section):
