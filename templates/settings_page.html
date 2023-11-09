@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<div class="wrapper">
+  <div class="main" class="dark-mode">
+    <h1><i class="fa fa-arrow-left"></i>Settings</h1>
+ <style>
+        body{
+        background-image: linear-gradient(to right, #d1d1d1, #c8c4dd, #bdb7e8, #b0aaf4, #a29eff);
+        font-family:'Lato';  
+        }
+        .wrapper{
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin-left: auto;
+        margin-right: auto;
+        }
+        .main{
+        /*dark mode*/
+        background-color: var(--bg-color);
+        color: var(--font-color);
+        /*-----*/
+        width:300px;
+        height:510px;
+        /*border: 2px solid #1A237E;*/
+        box-shadow: 0px 8px 60px -20px #E0F7FA;
+        border-radius: 10px;
+        padding:10px;
+        padding-top:10px;
+        }
+        img{
+        opacity: 0.8;
+        width:100px;
+        height:auto;  
+        margin:auto;
+        position: fixed;
+        transform: translate(-50%, -50%);
+        top:31.5%;
+        left:50%;
+        border-radius: 50px;
+        }
+        .image{
+        border: 2px solid var(--font-color);
+        border-style: dotted;
+        width:105px;
+        height:105px;
+        left:32%;
+        border-radius: 100px;
+        position:relative;
+        position: 50% 50%;
+        box-shadow: 0px 8px 60px -30px #FFFDE7;
+        }
+        ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        padding-top:20px;
+        }
+        li,h1,h4{
+        width:100%;
+        padding:10px;
+        cursor:pointer;
+        }
+        i{
+        padding-right:10px;
+        cursor:pointer;
+        }
+        h4{
+        left:10%;
+        padding-right:30px;
+        padding-top:0;
+        }
+        .fa-edit {
+        color: #FFFF;
+        position: absolute;
+        top: 37%;
+        left: 48%;
+        }
+        /*darkmode*/
+        :root {
+            --primary-color: #302AE6;
+            --secondary-color: #536390;
+            --font-color: #424242;
+            --bg-color: #fff;
+            --heading-color: #292922;
+        }
+        [data-theme="dark"] {
+            --primary-color: #9A97F3;
+            --secondary-color: #818cab;
+            --font-color: #e1e1ff;
+            --bg-color: #161625;
+            --heading-color: #818cab;
+        }
+
+        .theme-switch input {
+        display:none;
+        }
+        .theme-switch-wrapper {
+        display: flex;
+        align-items: center;
+        margin-bottom:-12%;
+        }
+        .theme-switch {
+        display: inline-block;
+        height: 27px;
+        width: 50px;
+        position: relative;
+        }
+
+        .slider {
+        background-color: #ccc;
+        bottom: 0;
+        cursor: pointer;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: .4s;
+        }
+        .slider:before {
+        content: "";
+        background-color: #fff;
+        bottom: 4px;
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        position: absolute;
+        transition: .4s;
+        }
+        input:checked + .slider {
+        background-color: #BAFF29;
+        }
+        input:checked + .slider:before {
+        transform: translateX(12px);
+        }
+        .slider.round {
+        border-radius: 34px;
+        }
+        .slider.round:before {
+        border-radius: 50%;
+        }
+</style>
+    
+<div class="image"> 
+ <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/ce4d3ce1-8ddc-41d8-8499-f8781586dfd1/ddovc25-c4a8dc99-f4a3-4152-8828-98c45127c486.jpg/v1/fill/w_600,h_600,q_75,strp/s_h_i_f_t_by_ithar14_ddovc25-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NjAwIiwicGF0aCI6IlwvZlwvY2U0ZDNjZTEtOGRkYy00MWQ4LTg0OTktZjg3ODE1ODZkZmQxXC9kZG92YzI1LWM0YThkYzk5LWY0YTMtNDE1Mi04ODI4LTk4YzQ1MTI3YzQ4Ni5qcGciLCJ3aWR0aCI6Ijw9NjAwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.MRCl1lY1wSahAvemyZGZycJODWNYPDgGPF0gTel9mic">
+    </div>
+ <script> //credit:
+//toggle dark mode:https://dev.to/ananyaneogi/create-a-dark-light-mode-switch-with-css-variables-34l8
+
+const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+
+function switchTheme(e) {
+    if (e.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+    else {
+        document.documentElement.setAttribute('data-theme', 'light');
+    }    
+}
+
+toggleSwitch.addEventListener('change', switchTheme, false); </script>
+    
+      <i class="fa fa-edit"></i>
+    
+    <div class="theme-switch-wrapper">
+    <label class="theme-switch" for="checkbox">
+        <input type="checkbox" id="checkbox" />
+        <div class="slider round"></div>
+     </label>
+     <h4>Dark Mode</h4>
+    </div>
+    
+    <ul>
+      <li><i class="fa fa-user"></i>Account</li>
+      <li><i class="fa fa-flag"></i>Notification</li>
+      <li><i class="fa fa-lock"></i>Privacy</li>
+      <li><i class="fa fa-shield"></i>Security</li>
+      <li><i class="fa fa-question"></i>help</li>
+    </ul>
+    <h4><i class="fa fa-sign-out"></i>Log out</h4>
+  </div>
+</div>
+ </html>
