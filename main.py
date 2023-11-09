@@ -10,6 +10,7 @@ import requests
 import json
 from constants import Sections, PopularBooks, PopularCoverIdxs, nextPopularBooks, nextNextPopularBooks
 from meta import popular_page
+import copy
 ######################## contants #############################
 SECTIONS = Sections()
 saved_covers = []
@@ -55,6 +56,14 @@ class Book(db.Model):
     bookName = db.Column(db.String(200), nullable=False)
     searches = db.relationship('Search', secondary=book_search.__tablename__, lazy='subquery',
         backref=db.backref('books', lazy=True))
+
+# Notification DB
+class Notification(db.Model):
+    __tablename__ = 'notification'
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.String(200), nullable=False)
+    text = db.Column(db.String(500), nullable=False)
+    isRead = db.Column(db.Boolean(), default=False)
 
 # class Section(db.Model):
 #     pass
