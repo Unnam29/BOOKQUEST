@@ -57,11 +57,11 @@ class Book(db.Model):
         backref=db.backref('books', lazy=True))
 
 # Notification DB
-class Nofication(db.Model):
+class Notification(db.Model):
     __tablename__ = 'notification'
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.String(200), nullable=False)
-    notificationText = db.Column(db.String(500), nullable=False)
+    text = db.Column(db.String(500), nullable=False)
     isRead = db.Column(db.Boolean(), default=False)
 
 # class Section(db.Model):
@@ -248,7 +248,14 @@ def individualproduct_page(coverId):
 
 @app.route('/notification_page', methods=['GET'])
 def notification_page():
-    return "<h1>Notifications</h1>"
+    userEmail = session['user']
+    userNotifications = db.session.query(Notification).filter(Notification.user == userEmail).all()
+    notifications = [notification.text for notification in userNotifications]
+    all_notification = ""
+    for text in notifications:
+        all_notification = all_notification + '-> ' + text + '<br>'
+
+    return f"<h1>Notifications</h1><br>{all_notification}"
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
