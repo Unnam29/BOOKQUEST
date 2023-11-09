@@ -247,6 +247,19 @@ def individualproduct_page(coverId):
     current_book = db.session.query(Book).filter(Book.coverId == coverId).first()
     return render_template("individualproduct_page.html", coverId=coverId, book=current_book)
 
+@app.route('/notification_page', methods=['GET'])
+def notification_page():
+    userEmail = session['user']
+    userNotifications = db.session.query(Notification).filter(Notification.user == userEmail).all()
+    print("len(userNotifications) = ", len(userNotifications))
+    current_notifications = copy.deepcopy(userNotifications)
+
+    for notification in userNotifications:
+        notification.isRead = True
+    
+    db.session.commit()
+
+    return render_template("notifications_page.html", notifications=current_notifications)
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
