@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<head>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <div class="wrapper">
   <div class="main" class="dark-mode">
@@ -92,7 +93,6 @@
             --bg-color: #161625;
             --heading-color: #818cab;
         }
-
         .theme-switch input {
         display:none;
         }
@@ -141,28 +141,23 @@
         border-radius: 50%;
         }
 </style>
-    
+</head>
 <div class="image"> 
- <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/ce4d3ce1-8ddc-41d8-8499-f8781586dfd1/ddovc25-c4a8dc99-f4a3-4152-8828-98c45127c486.jpg/v1/fill/w_600,h_600,q_75,strp/s_h_i_f_t_by_ithar14_ddovc25-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NjAwIiwicGF0aCI6IlwvZlwvY2U0ZDNjZTEtOGRkYy00MWQ4LTg0OTktZjg3ODE1ODZkZmQxXC9kZG92YzI1LWM0YThkYzk5LWY0YTMtNDE1Mi04ODI4LTk4YzQ1MTI3YzQ4Ni5qcGciLCJ3aWR0aCI6Ijw9NjAwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.MRCl1lY1wSahAvemyZGZycJODWNYPDgGPF0gTel9mic">
-    </div>
- <script> //credit:
-//toggle dark mode:https://dev.to/ananyaneogi/create-a-dark-light-mode-switch-with-css-variables-34l8
-
-const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
-
-function switchTheme(e) {
-    if (e.target.checked) {
-        document.documentElement.setAttribute('data-theme', 'dark');
+<img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/ce4d3ce1-8ddc-41d8-8499-f8781586dfd1/ddovc25-c4a8dc99-f4a3-4152-8828-98c45127c486.jpg/v1/fill/w_600,h_600,q_75,strp/s_h_i_f_t_by_ithar14_ddovc25-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NjAwIiwicGF0aCI6IlwvZlwvY2U0ZDNjZTEtOGRkYy00MWQ4LTg0OTktZjg3ODE1ODZkZmQxXC9kZG92YzI1LWM0YThkYzk5LWY0YTMtNDE1Mi04ODI4LTk4YzQ1MTI3YzQ4Ni5qcGciLCJ3aWR0aCI6Ijw9NjAwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.MRCl1lY1wSahAvemyZGZycJODWNYPDgGPF0gTel9mic">
+</div>
+<script> 
+    const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+    function switchTheme(e) {
+        if (e.target.checked) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        else {
+                document.documentElement.setAttribute('data-theme', 'light');
+        }    
     }
-    else {
-        document.documentElement.setAttribute('data-theme', 'light');
-    }    
-}
-
-toggleSwitch.addEventListener('change', switchTheme, false); </script>
-    
-      <i class="fa fa-edit"></i>
-    
+        toggleSwitch.addEventListener('change', switchTheme, false); 
+</script>
+    <i class="fa fa-edit"></i>
     <div class="theme-switch-wrapper">
     <label class="theme-switch" for="checkbox">
         <input type="checkbox" id="checkbox" />
@@ -170,14 +165,13 @@ toggleSwitch.addEventListener('change', switchTheme, false); </script>
      </label>
      <h4>Dark Mode</h4>
     </div>
-    
-    <ul>
-      <li><i class="fa fa-user"></i>Account</li>
-      <li><i class="fa fa-flag"></i>Notification</li>
-      <li><i class="fa fa-lock"></i>Privacy</li>
-      <li><i class="fa fa-shield"></i>Security</li>
-      <li><i class="fa fa-question"></i>help</li>
-    </ul>
+        <ul>
+        <li><i class="fa fa-user"></i>Account</li>
+        <li><i class="fa fa-flag"></i>Notification</li>
+        <li><i class="fa fa-lock"></i>Privacy</li>
+        <li><i class="fa fa-shield"></i>Security</li>
+        <li><i class="fa fa-question"></i>help</li>
+        </ul>
     <h4><i class="fa fa-sign-out"></i>Log out</h4>
   </div>
 </div>
