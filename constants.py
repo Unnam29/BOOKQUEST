@@ -18,10 +18,6 @@ class Sections:
     def updataSection(self, sectionName):
         self.CURRENT_SECTION = sectionName
 
-
-PopularBooks = ["The Fountainhead", "Principles of software development",  "The 3 Mistakes of My Life", "12 rules for life"]
-PopularCoverIdxs = [1, 4, 1, 1]
-
-nextPopularBooks = ["12 more rules for life", "Atlas shrugged", "Rich dad poor dad"]
-
-nextNextPopularBooks = ["gulliver's travells", 'merchant of the venice', 'macbeth']
+ITEMS_IN_PAGE = 20
+PopularBooks = ["The Fountainhead", "Principles of software development",  "The 3 Mistakes of My Life", "12 rules for life", "12 more rules for life", "Atlas shrugged", "Rich dad poor dad", "gulliver's travells", 'merchant of the venice', 'macbeth']
+PopularCoverIdxs = [1, 4, 1, 1, 0, 0, 0, 1, 0, 0, 0]
