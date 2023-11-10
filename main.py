@@ -8,8 +8,8 @@ import random
 from datetime import datetime
 import requests
 import json
-from constants import Sections, PopularBooks, PopularCoverIdxs, nextPopularBooks, nextNextPopularBooks
-from meta import popular_page
+from constants import Sections, PopularBooks, PopularCoverIdxs, ITEMS_IN_PAGE
+from meta import popular_page, explore_page
 import copy
 ######################## contants #############################
 SECTIONS = Sections()
@@ -123,7 +123,7 @@ def home_page():
             popularBook = PopularBooks[i]
 
             print("current popular book = ", popularBook)
-            recived_book_names, recived_cover_ids = search(popularBook)
+            recived_book_names, recived_cover_ids = search({"book": {'q': popularBook}})
             print("recived_book_names = ", recived_book_names)
             if len(recived_book_names) >= PopularCoverIdxs[i]:
                 book_names.append(recived_book_names[PopularCoverIdxs[i]])    
@@ -135,41 +135,27 @@ def home_page():
             if cover_ids[-1] not in saved_covers:
                 unsaved_covers.append(cover_ids[-1])
 
-        if popular_page >= 2: 
-            for i in range(len(nextPopularBooks)):
-                popularBook = nextPopularBooks[i]
-
-                print("current popular book = ", popularBook)
-                recived_book_names, recived_cover_ids = search(popularBook)
-                
-                book_names.append(recived_book_names[0])    
-                cover_ids.append(recived_cover_ids[0])
-                
-                if cover_ids[-1] not in saved_covers:
-                    unsaved_covers.append(cover_ids[-1])
-
-        if popular_page == 3: 
-            for i in range(len(nextNextPopularBooks)):
-                popularBook = nextNextPopularBooks[i]
-
-                print("current popular book = ", popularBook)
-                recived_book_names, recived_cover_ids = search(popularBook)
-                
-                book_names.append(recived_book_names[0])    
-                cover_ids.append(recived_cover_ids[0])
-                
-                if cover_ids[-1] not in saved_covers:
-                    unsaved_covers.append(cover_ids[-1])
-
-        
         print("unsaved_cover = ", unsaved_covers)
         print("#################################### END OF UNSAVED COVERS ####################################")
         if len(unsaved_covers) != 0:
             for unsaved_cover in unsaved_covers:
                 fetchCovers(unsaved_cover)
     elif SECTIONS.CURRENT_SECTION == SECTIONS.EXPLORE:
-        
-        pass
+        recived_book_names, recived_cover_ids = fetchBooksForExplore()
+        book_names = recived_book_names
+        cover_ids = recived_cover_ids
+
+        print(book_names)
+        for cover_id in cover_ids:
+            if cover_id not in saved_covers:
+                unsaved_covers.append(cover_id)
+
+        if len(unsaved_covers) != 0:
+            for unsaved_cover in unsaved_covers:
+                fetchCovers(unsaved_cover)
+
+
+
     # fetchCovers(cover_ids)
     print(book_names)
     print(cover_ids)
@@ -195,7 +181,7 @@ def update_home_page():
             popularBook = PopularBooks[i]
 
             print("current popular book = ", popularBook)
-            recived_book_names, recived_cover_ids = search(popularBook)
+            recived_book_names, recived_cover_ids = search({"book": {'q': popularBook}})
             print("recived_book_names = ", recived_book_names)
             if len(recived_book_names) >= PopularCoverIdxs[i]:
                 book_names.append(recived_book_names[PopularCoverIdxs[i]])    
@@ -207,22 +193,6 @@ def update_home_page():
             if cover_ids[-1] not in saved_covers:
                 unsaved_covers.append(cover_ids[-1])
 
-        if popular_page >= 2: 
-            print("popular page = 2")
-            for i in range(len(nextPopularBooks)):
-                popularBook = nextPopularBooks[i]
-
-                print("current popular book = ", popularBook)
-                recived_book_names, recived_cover_ids = search(popularBook)
-                
-                book_names.append(recived_book_names[0])    
-                cover_ids.append(recived_cover_ids[0])
-                
-                if cover_ids[-1] not in saved_covers:
-                    unsaved_covers.append(cover_ids[-1])
-        else:
-            print("popular page = ", popular_page)
-
         
         print("unsaved_cover = ", unsaved_covers)
         print("#################################### END OF UNSAVED COVERS ####################################")
@@ -230,8 +200,8 @@ def update_home_page():
             for unsaved_cover in unsaved_covers:
                 fetchCovers(unsaved_cover)
     elif SECTIONS.CURRENT_SECTION == SECTIONS.EXPLORE:
-        
         pass
+
     # fetchCovers(cover_ids)
     print(book_names)
     print(cover_ids)
@@ -405,13 +375,28 @@ def nextPageClicked(section):
     print("nextPage cliecked")
 
     if section == SECTIONS.POPULARP_PRODUCTS:
-        if popular_page == 1:
+        if popular_page != 1:
+            popular_page = 2
+    elif section == SECTIONS.EXPLORE:
+        explore_page += 1
+    return redirect('/home_page')
+
+@app.route('/prevPageClicked/<section>', methods=['GET', 'POST'])
+def prevPageClicked(section):
+    global explore_page, recommendation_page, popular_page
+    print("prevPage cliecked")
+
+    if section == SECTIONS.POPULARP_PRODUCTS:
+        if popular_page == 3:
             popular_page = 2
         
         elif popular_page == 2:
-            popular_page = 3
-        
+            popular_page = 1
+    elif section == SECTIONS.EXPLORE:
+        if explore_page - 1 != 0:
+            explore_page -= 1
     return redirect('/home_page')
+
 
 @app.route('/sectionClicked/<section>', methods=['GET', 'POST'])
 def sectionClicked(section):
@@ -434,9 +419,17 @@ def send_notification(userEmail):
         
     return verification_code
     
-def search(book_name):
+def search(searchBy):
     # if already searched return previous result
-    searchItem = Search.query.filter_by(searchTerm=book_name).first()
+    itemType = list(searchBy.keys())[0]
+    searchQuery = list(searchBy.values())[0]
+    searchTerm = ""
+    if itemType == 'book':
+        searchTerm = searchQuery['q']
+    else:
+        searchTerm = str(searchQuery)
+
+    searchItem = Search.query.filter_by(searchTerm=searchTerm).first()
     print("searchItem = ", searchItem)
     if searchItem != None:
         print("ENTERED IF\n\n")
@@ -455,24 +448,25 @@ def search(book_name):
 
     # saving new searchTerm
     searchItem = Search(id=len(Search.query.all())+1, 
-                        searchTerm=book_name)
+                        searchTerm=searchTerm)
     db.session.add(searchItem)
     db.session.commit()
 
     # getting search results
-    response = requests.get(
-      'https://openlibrary.org/search.json?q={}'.format(book_name)
-    )
+    response = requests.get('https://openlibrary.org/search.json?', params=searchQuery)
 
     if response.status_code != 200:
         raise Exception('Failed to search Open Library: {} {}'.format(
             response.status_code, response.content
     ))
+    else:
+        print("search sucessfull")
 
     # Parse the JSON response.
     books = json.loads(response.content)['docs']
 
-
+    print(response.text)
+    print("books = ", len(books))
     # Get a list of book names.
     book_names = []
     cover_ids = []
@@ -508,6 +502,25 @@ def search(book_name):
 
     return book_names, cover_ids
 
+def fetchBooksForExplore():
+    global explore_page
+    url = 'http://openlibrary.org/search.json'
+
+
+    params = {
+    "q": "*",
+    "limit": ITEMS_IN_PAGE,
+    "page": explore_page
+    }
+    
+    # response = requests.get(url, params=params)
+    # data = response.json()
+    
+    # if not data['docs']:
+    #     print("nomore data")
+    
+    return search({'all_books': params})  
+
 def fetchCovers(cover_ids):
     cover_ids = [cover_ids]
     for cover_id in cover_ids:
@@ -521,7 +534,7 @@ def fetchCovers(cover_ids):
         # Download the cover image.
         response = requests.get(cover_image_url)
 
-        image_directory = os.path.join('/Users/janardhankarravula/Developer/masters/sem2-PSD/BOOKQUEST/static', "covers")
+        image_directory = os.path.join('static', "covers")
         if not os.path.exists(image_directory):
             os.mkdir(image_directory)
 
