@@ -10,6 +10,7 @@ import requests
 import json
 from constants import Sections, PopularBooks, PopularCoverIdxs, nextPopularBooks, nextNextPopularBooks
 from meta import popular_page
+import copy
 ######################## contants #############################
 SECTIONS = Sections()
 saved_covers = []
@@ -55,6 +56,14 @@ class Book(db.Model):
     bookName = db.Column(db.String(200), nullable=False)
     searches = db.relationship('Search', secondary=book_search.__tablename__, lazy='subquery',
         backref=db.backref('books', lazy=True))
+
+# Notification DB
+class Notification(db.Model):
+    __tablename__ = 'notification'
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.String(200), nullable=False)
+    text = db.Column(db.String(500), nullable=False)
+    isRead = db.Column(db.Boolean(), default=False)
 
 # class Section(db.Model):
 #     pass
@@ -238,6 +247,19 @@ def individualproduct_page(coverId):
     current_book = db.session.query(Book).filter(Book.coverId == coverId).first()
     return render_template("individualproduct_page.html", coverId=coverId, book=current_book)
 
+@app.route('/notification_page', methods=['GET'])
+def notification_page():
+    userEmail = session['user']
+    userNotifications = db.session.query(Notification).filter(Notification.user == userEmail).all()
+    print("len(userNotifications) = ", len(userNotifications))
+    current_notifications = copy.deepcopy(userNotifications)
+
+    for notification in userNotifications:
+        notification.isRead = True
+    
+    db.session.commit()
+
+    return render_template("notifications_page.html", notifications=current_notifications)
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
