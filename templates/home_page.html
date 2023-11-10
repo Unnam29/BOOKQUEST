@@ -68,7 +68,10 @@
 			</div>
 			{% endfor %}
 		</div>
-		<a href="{{url_for('nextPageClicked', section=current_section)}}"><button> Next </button></a>
+		<div class="paging-buttons">
+			<button><a href="{{url_for('prevPageClicked', section=current_section)}}">prev page</a></button>
+			<button><a href="{{url_for('nextPageClicked', section=current_section)}}">next page</a></button>
+		  </div>
 	</turbo-frame>
 	
 	<!-- <section id="products">

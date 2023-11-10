@@ -8,7 +8,7 @@ import random
 from datetime import datetime
 import requests
 import json
-from constants import Sections, PopularBooks, PopularCoverIdxs, nextPopularBooks, nextNextPopularBooks
+from constants import Sections, PopularBooks, PopularCoverIdxs
 from meta import popular_page
 import copy
 ######################## contants #############################
@@ -413,6 +413,23 @@ def nextPageClicked(section):
         
     return redirect('/home_page')
 
+@app.route('/prevPageClicked/<section>', methods=['GET', 'POST'])
+def prevPageClicked(section):
+    global explore_page, recommendation_page, popular_page
+    print("prevPage cliecked")
+
+    if section == SECTIONS.POPULARP_PRODUCTS:
+        if popular_page == 3:
+            popular_page = 2
+        
+        elif popular_page == 2:
+            popular_page = 1
+    elif section == SECTIONS.EXPLORE:
+        if explore_page - 1 != 0:
+            explore_page -= 1
+    return redirect('/home_page')
+
+
 @app.route('/sectionClicked/<section>', methods=['GET', 'POST'])
 def sectionClicked(section):
 
@@ -521,7 +538,7 @@ def fetchCovers(cover_ids):
         # Download the cover image.
         response = requests.get(cover_image_url)
 
-        image_directory = os.path.join('/Users/janardhankarravula/Developer/masters/sem2-PSD/BOOKQUEST/static', "covers")
+        image_directory = os.path.join('static', "covers")
         if not os.path.exists(image_directory):
             os.mkdir(image_directory)
 
