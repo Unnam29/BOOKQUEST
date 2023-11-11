@@ -87,3 +87,7 @@ def test_update_password(test_client):
             response = test_client.get('/login_page')
             assert response.status_code == 200
             assert b"Login" in response.data
+    def test_signup_route(test_client):
+            response = test_client.get('/signup_page')
+            assert response.status_code == 200
+            assert b"Sign Up" in response.data
