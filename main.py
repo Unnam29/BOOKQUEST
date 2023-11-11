@@ -54,6 +54,10 @@ class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     coverId = db.Column(db.String(100), unique=True, nullable=False)
     bookName = db.Column(db.String(200), nullable=False)
+    author = db.Column(db.String(200), nullable=False)
+    # price = db.Column(db.Float, nullable=False)
+    publishedYear = db.Column(db.Integer, nullable=False)
+    editionCount = db.Column(db.Integer, nullable=False)
     searches = db.relationship('Search', secondary=book_search.__tablename__, lazy='subquery',
         backref=db.backref('books', lazy=True))
 
