@@ -77,3 +77,9 @@ def test_update_password(test_client):
          response = test_client.get('/logout')
          with test_client.session_transaction() as session:
               assert session['loggedIn'] == False
+    def test_verification_route(test_client):
+            with test_client.session_transaction() as sess:
+                sess['otp'] = '123456'  # Sample OTP to test
+            response = test_client.get('/verifcation_page')
+            assert response.status_code == 200
+            assert b"Email Verification" in response.data
