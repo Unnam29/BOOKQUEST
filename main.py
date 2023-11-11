@@ -102,7 +102,7 @@ def signup_page():
     return render_template('signup_page.html')
 
 # verification_page route opens verification page
-@app.route('/verifcation_page')
+@app.route('/verification_page')
 def verification_page():
     session['forgot verify'] = True
     return render_template('verification_page.html', state='forgot verify')
