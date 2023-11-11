@@ -1,9 +1,6 @@
 import pytest
 from flask import Flask
 from main import app, db, User, SECTIONS, explore_page
-# @pytest.mark.parametrize("input,expected", [
-#     ({"firstName"},)
-# ])
 
 @pytest.fixture(scope='module')
 def test_client():
@@ -18,43 +15,66 @@ def test_client():
 
     ctx.pop()
 
-def test_signup(test_client):
-    form_data = {'firstName': 'test', 'lastName': 'test', 'email': 'janardhankarriavula@gmail.com', 'password': 'test', 'confirmPassword': 'test'}
-    response = app.test_client().post('/register', data=form_data)
-    
-    with app.app_context():
-        registered_user = db.session.get(User, form_data['email'])
-        assert registered_user.firstName == form_data['firstName']
-        db.session.delete(registered_user)
-
-        db.session.commit()
-
-
-def test_login(test_client):
-    form_data = {'email': 'test', 'password': 'test'}
-
-    response = test_client.post('/login', data=form_data)
-
-    with test_client.session_transaction() as session:
-        assert session['loggedIn'] == True 
-
-def test_update_password(test_client):
-    form_data = {'password': 'testnew', 'confirmPassword': 'testnew'}
-    forgot_email = 'test'
-    old_password = 'test'
-
-    with test_client.session_transaction() as session:
-        session['forgot email'] = forgot_email
-
-    response = test_client.post('/update_password', data=form_data)
+@pytest.mark.parametrize("input,expected", [
+    (['valid', {'firstName': 'test', 'lastName': 'test', 'email': 'janardhankarriavula@gmail.com', 'password': 'test', 'confirmPassword': 'test'}], 'test'),
+    (['invalid email', {'firstName': 'test', 'lastName': 'test', 'email': 'pythontest363@gmail.com', 'password': 'test', 'confirmPassword': 'test'}], "<h1>error message will be displayed, for improper signup deails format</h1>"),
+    (['invalid password', {'firstName': 'test', 'lastName': 'test', 'email': 'pythontest364@gmail.com', 'password': 'test', 'confirmPassword': 'test1'}], "<h1>error message will be displayed, for improper signup deails format</h1>"),
+])
+def test_signup(test_client, input, expected):
+    response = app.test_client().post('/register', data=input[1])
 
     with app.app_context():
-        registered_user = db.session.get(User, forgot_email)
-        assert registered_user.password == form_data['password']
+        
+        if input[0] == 'valid':
+            registered_user = db.session.get(User, input[1]['email'])
+            assert registered_user.firstName == expected
 
-        registered_user.password = old_password
+            db.session.delete(registered_user)
 
-        db.session.commit()
+            db.session.commit()
+        else:
+            assert response.text == expected
+
+        
+
+@pytest.mark.parametrize("input,expected", [
+     (['valid', {'email': 'test', 'password': 'test'}], True),
+     (['invalid email', {'email': 'test100', 'password': 'test'}], "<h1> user with give email doesn't exist </h1>"),
+     (['invalid password', {'email': 'test', 'password': 'test12'}], "<h1> Incorrect password </h1>"),
+])
+def test_login(test_client, input, expected):
+
+    response = test_client.post('/login', data=input[1])
+
+    with test_client.session_transaction() as session:
+        if input[0] == 'valid':
+            assert session['loggedIn'] == expected
+        else:
+            assert response.text == expected 
+
+@pytest.mark.parametrize("input,expected", [
+     (["valid", {'password': 'testnew', 'confirmPassword': 'testnew'}, {"forgot email": "test"}, {"old password": "test"}], {"new password": "testnew"}),
+     (["password mis-match", {'password': 'testnew', 'confirmPassword': 'testneew'}, {"forgot email": "test"}, {"old password": "test"}], {"old password": "test"}),
+])
+def test_update_password(test_client, input, expected):
+
+    with test_client.session_transaction() as session:
+        session['forgot email'] = input[2]['forgot email']
+
+    response = test_client.post('/update_password', data=input[1])
+
+    with app.app_context():
+        registered_user = db.session.get(User, input[2]['forgot email'])
+        if input[0] == 'valid':
+            assert registered_user.password == expected['new password']
+
+            registered_user.password = input[3]['old password']
+
+            db.session.commit()
+        else:
+            assert registered_user.password == expected['old password']
+
+        
 
 def test_next_page_clicked(test_client):
     global explore_page
