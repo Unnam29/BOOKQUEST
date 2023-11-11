@@ -56,46 +56,39 @@ def test_update_password(test_client):
 
         db.session.commit()
 
-    def client():
-        app.config['TESTING'] = True
-        with app.test_client() as client:
-            yield client
+def client():
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
-    def test_next_page_clicked_popular_page_1(client):
-        response = client.get('/nextPageClicked/POPULARP_PRODUCTS')
+def test_logout(test_client):
+        response = test_client.get('/logout')
+        with test_client.session_transaction() as session:
+            assert session['loggedIn'] == False
+
+def test_verification_route(test_client):
+        with test_client.session_transaction() as sess:
+            sess['otp'] = '123456'  # Sample OTP to test
+        response = test_client.get('/verifcation_page')
+        assert response.status_code == 200
+        assert b"Email Verification" in response.data
+
+def test_login_route(test_client):
+        response = test_client.get('/login_page')
+        assert response.status_code == 200
+        assert b"Login" in response.data
+
+def test_signup_route(test_client):
+        response = test_client.get('/signup_page')
+        assert response.status_code == 200
+        assert b"Sign Up" in response.data
+
+def test_forgot_password_route(test_client):
+        response = test_client.get('/forgot_password_page')
+        assert response.status_code == 200
+        assert b"RESET YOUR PASSWORD" in response.data
         
-        # Ensure the route redirects to '/home_page'
-        assert response.status_code == 302
-        assert response.location == 'http://localhost/home_page'
-    
-    def test_next_page_clicked_invalid_section(client):
-        response = client.get('/nextPageClicked/INVALID_SECTION')
-
-        # Ensure the route returns a 404 status code for an invalid section
-        assert response.status_code == 404
-    def test_logout(test_client):
-         response = test_client.get('/logout')
-         with test_client.session_transaction() as session:
-              assert session['loggedIn'] == False
-    def test_verification_route(test_client):
-            with test_client.session_transaction() as sess:
-                sess['otp'] = '123456'  # Sample OTP to test
-            response = test_client.get('/verifcation_page')
-            assert response.status_code == 200
-            assert b"Email Verification" in response.data
-    def test_login_route(test_client):
-            response = test_client.get('/login_page')
-            assert response.status_code == 200
-            assert b"Login" in response.data
-    def test_signup_route(test_client):
-            response = test_client.get('/signup_page')
-            assert response.status_code == 200
-            assert b"Sign Up" in response.data
-    def test_forgot_password_route(test_client):
-            response = test_client.get('/forgot_password_page')
-            assert response.status_code == 200
-            assert b"RESET YOUR PASSWORD" in response.data
-    def test_home_route(test_client):
-            response = test_client.get('/')
-            assert response.status_code == 200
-            assert b"Login" in response.data
+def test_home_route(test_client):
+        response = test_client.get('/')
+        assert response.status_code == 200
+        assert b"Login" in response.data
