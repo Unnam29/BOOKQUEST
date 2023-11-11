@@ -1,6 +1,6 @@
 import pytest
 from flask import Flask
-from main import app, db, User
+from main import app, db, User, SECTIONS, explore_page
 # @pytest.mark.parametrize("input,expected", [
 #     ({"firstName"},)
 # ])
@@ -55,6 +55,26 @@ def test_update_password(test_client):
         registered_user.password = old_password
 
         db.session.commit()
+
+def test_next_page_clicked(test_client):
+    global explore_page
+    explore_page_before = explore_page
+
+    response = test_client.post('/nextPageClicked/'+SECTIONS.EXPLORE)
+
+    from main import explore_page
+
+    assert explore_page_before + 1 == explore_page
+
+def test_prev_page_clicked(test_client):
+    global explore_page
+    explore_page_before = explore_page
+
+    response = test_client.post('/prevPageClicked/'+SECTIONS.EXPLORE)
+    
+    from main import explore_page
+
+    assert explore_page_before - 1 == explore_page
 
 def client():
     app.config['TESTING'] = True
