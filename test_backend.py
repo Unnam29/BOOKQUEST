@@ -95,3 +95,7 @@ def test_update_password(test_client):
             response = test_client.get('/forgot_password_page')
             assert response.status_code == 200
             assert b"RESET YOUR PASSWORD" in response.data
+    def test_home_route(test_client):
+            response = test_client.get('/')
+            assert response.status_code == 200
+            assert b"Login" in response.data
