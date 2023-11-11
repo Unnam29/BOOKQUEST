@@ -277,8 +277,9 @@ def register():
     elif userWithEmail != None: # checkign if users mail is unique or not
         print("User with this email already exist")
     else: # adding user to data base 
-        # otp = send_notification(email)
-        otp = "0000"
+        otp = send_notification(email)
+        sendNotification("your sucessfully registered as a user")
+        # otp = "0000"
         newUser = User(id=len(User.query.all())+1,
                    firstName=firstName,
                    lastName=lastName,
@@ -323,6 +324,7 @@ def login():
     session.clear()
     session['loggedIn'] = True
     session['user'] = email
+    sendNotification("Loggin sucessfull")
     print(session)
     # if all of the above failuer cases fail user will be directed to homepage
     return redirect('/home_page')
@@ -356,6 +358,7 @@ def verify():
 
     if otp == userWithEmail.otp: # checking if otp entered matches to the otp sent
         # updating user as verified in the database 
+        
         userWithEmail.isVerified = True
         db.session.commit()
 
@@ -368,6 +371,7 @@ def verify():
         session.clear()
         session['loggedIn'] = True
         session['user'] = email
+        sendNotification("your identity sucessfully verified")
         return redirect('/home_page')
     else: # if otp mis-matched they error message will be dispalyed 
         return render_template("verification_page.html", state="invalid")
@@ -383,6 +387,7 @@ def update_password():
         userWithEmail = db.session.get(User, session['forgot email'])
 
         userWithEmail.password = password
+        sendNotification("password successfully verified")
         db.session.commit()
 
         return redirect('/login_page')
@@ -645,6 +650,16 @@ def update_saved_covers():
     global saved_covers
 
     saved_covers = set(getSavedCovers('static/covers'))
+
+def sendNotification(msg):
+    newNotification = Notification(
+        id=len(Notification.query.all())+1, 
+        user=session['user'], 
+        text=msg,
+        isRead=False)
+    
+    db.session.add(newNotification)
+    db.session.commit()
 # send_notification("pythontest363@gmail.com")
 
 # book_names, cover_ids = search("3 mistakes of my life")
