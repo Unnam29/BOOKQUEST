@@ -36,7 +36,7 @@ class User(db.Model):
 
 # many to many relation between Book and Search
 class book_search(db.Model):
-    __tablename__ = 'book_search'
+    _tablename_ = 'book_search'
     
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
@@ -44,13 +44,13 @@ class book_search(db.Model):
 
 # Search DB
 class Search(db.Model):
-    __tablename__ = 'search'
+    _tablename_ = 'search'
     id = db.Column(db.Integer, primary_key=True)
     searchTerm = db.Column(db.String(200), unique=True, nullable=False)
 
 # User Book database to store its unique id, searches, 
 class Book(db.Model):
-    __tablename__ = 'book'
+    _tablename_ = 'book'
     id = db.Column(db.Integer, primary_key=True)
     coverId = db.Column(db.String(100), unique=True, nullable=False)
     bookName = db.Column(db.String(200), nullable=False)
@@ -58,12 +58,12 @@ class Book(db.Model):
     # price = db.Column(db.Float, nullable=False)
     publishedYear = db.Column(db.Integer, nullable=False)
     editionCount = db.Column(db.Integer, nullable=False)
-    searches = db.relationship('Search', secondary=book_search.__tablename__, lazy='subquery',
+    searches = db.relationship('Search', secondary=book_search._tablename_, lazy='subquery',
         backref=db.backref('books', lazy=True))
 
 # Notification DB
 class Notification(db.Model):
-    __tablename__ = 'notification'
+    _tablename_ = 'notification'
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.String(200), nullable=False)
     text = db.Column(db.String(500), nullable=False)
@@ -285,12 +285,13 @@ def register():
                    email=email,
                    password=password,
                    otp=otp)
-        
+
         db.session.add(newUser)
         db.session.commit()
 
         
         session['temp_user'] = email
+        sendNotification("You are successfully registed to BOOKQUEST")
         return render_template('verification_page.html', state="unverifed")
 
     print("registered user")
@@ -323,7 +324,7 @@ def login():
     session.clear()
     session['loggedIn'] = True
     session['user'] = email
-    print(session)
+    sendNotification("Your login is successfull")
     # if all of the above failuer cases fail user will be directed to homepage
     return redirect('/home_page')
 
@@ -368,6 +369,8 @@ def verify():
         session.clear()
         session['loggedIn'] = True
         session['user'] = email
+        sendNotification("you identity is sucessfully verified")
+        sendNotification("Welcome to BOOKQUEST")
         return redirect('/home_page')
     else: # if otp mis-matched they error message will be dispalyed 
         return render_template("verification_page.html", state="invalid")
@@ -385,6 +388,7 @@ def update_password():
         userWithEmail.password = password
         db.session.commit()
 
+        sendNotification("your password successfully updated")
         return redirect('/login_page')
     else: # if passwords mis-match error message will be displayed
         return render_template('forgot_password_page.html', state='invalid')
@@ -645,10 +649,25 @@ def update_saved_covers():
     global saved_covers
 
     saved_covers = set(getSavedCovers('static/covers'))
+
+def sendNotification(msg):
+    userEmail = None
+    if 'user' in set(session.keys()):
+        userEmail = session['user']
+    else:
+        userEmail = session['temp_user']
+        
+    newNotification = Notification(
+        id=len(Notification.query.all())+1, 
+        user=session['user'], 
+        text=msg,
+        isRead=False)
+    
+    db.session.add(newNotification)
+    db.session.commit()
 # send_notification("pythontest363@gmail.com")
 
 # book_names, cover_ids = search("3 mistakes of my life")
 
 if __name__ == '__main__':
     app.run(debug=True)
-
