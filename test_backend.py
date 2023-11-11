@@ -83,3 +83,7 @@ def test_update_password(test_client):
             response = test_client.get('/verifcation_page')
             assert response.status_code == 200
             assert b"Email Verification" in response.data
+    def test_login_route(test_client):
+            response = test_client.get('/login_page')
+            assert response.status_code == 200
+            assert b"Login" in response.data
