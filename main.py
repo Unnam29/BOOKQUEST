@@ -9,7 +9,7 @@ from datetime import datetime
 import requests
 import json
 from constants import Sections, PopularBooks, PopularCoverIdxs, ITEMS_IN_PAGE
-from meta import popular_page, explore_page
+from meta import popular_page, explore_page, recommendation_page
 import copy
 ######################## contants #############################
 SECTIONS = Sections()
@@ -102,7 +102,7 @@ def signup_page():
     return render_template('signup_page.html')
 
 # verification_page route opens verification page
-@app.route('/verification_page')
+@app.route('/verifcation_page')
 def verification_page():
     session['forgot verify'] = True
     return render_template('verification_page.html', state='forgot verify')
@@ -155,6 +155,16 @@ def home_page():
                 fetchCovers(unsaved_cover)
     elif SECTIONS.CURRENT_SECTION == SECTIONS.EXPLORE:
         book_names, cover_ids, published_years, authors, edition_counts = fetchBooksForExplore()
+
+        for cover_id in cover_ids:
+            if cover_id not in saved_covers:
+                unsaved_covers.append(cover_id)
+
+        if len(unsaved_covers) != 0:
+            for unsaved_cover in unsaved_covers:
+                fetchCovers(unsaved_cover)
+    elif SECTIONS.CURRENT_SECTION == SECTIONS.RECOMMENDATIOS:
+        book_names, cover_ids, published_years, authors, edition_counts = fetchBooksForRecomendations()
 
         for cover_id in cover_ids:
             if cover_id not in saved_covers:
@@ -396,6 +406,16 @@ def nextPageClicked(section):
             popular_page = 2
     elif section == SECTIONS.EXPLORE:
         explore_page += 1
+    elif section == SECTIONS.RECOMMENDATIOS:
+        book_recommendations= db.session.query(Book).order_by(Book.editionCount.desc()).all() 
+        recommendation_page_count = len(book_recommendations) // ITEMS_IN_PAGE
+
+        if len(book_recommendations) % ITEMS_IN_PAGE != 0:
+            recommendation_page_count += 1
+
+        if recommendation_page <  recommendation_page_count:
+            recommendation_page += 1
+
     return redirect('/home_page')
 
 @app.route('/prevPageClicked/<section>', methods=['GET', 'POST'])
@@ -412,6 +432,10 @@ def prevPageClicked(section):
     elif section == SECTIONS.EXPLORE:
         if explore_page - 1 != 0:
             explore_page -= 1
+    elif section == SECTIONS.RECOMMENDATIOS:
+        if recommendation_page - 1 != 0:
+            recommendation_page -= 1
+
     return redirect('/home_page')
 
 
@@ -554,6 +578,25 @@ def fetchBooksForExplore():
     #     print("nomore data")
     
     return search({'all_books': params})  
+
+def fetchBooksForRecomendations():
+    global recommendation_page
+    print("recommendation_page = ", recommendation_page)
+    book_recommendations = db.session.query(Book).order_by(Book.editionCount.desc()).all()[(recommendation_page-1)*ITEMS_IN_PAGE:recommendation_page*ITEMS_IN_PAGE]
+    book_names = []
+    cover_ids = []
+    published_years = [] 
+    authors = [] 
+    edition_counts = []
+    
+    for book_recommendation in book_recommendations:
+        book_names.append(book_recommendation.bookName)
+        cover_ids.append(book_recommendation.coverId)
+        published_years.append(book_recommendation.publishedYear)
+        authors.append(book_recommendation.author)
+        edition_counts.append(book_recommendation.editionCount)
+
+    return book_names, cover_ids, published_years, authors, edition_counts
 
 def fetchCovers(cover_ids):
     cover_ids = [cover_ids]
