@@ -452,8 +452,11 @@ def search(searchBy):
         # print("search ids = ", [book_search_item.id for book_search_item in db.session.query(book_search).filter(book_search.search_id == searchItem.id).all()])
         book_names = [bookResult.bookName for bookResult in bookResults]
         cover_ids = [bookResult.coverId for bookResult in bookResults]
+        published_years = [bookResult.publishedYear for bookResult in bookResults]
+        authors = [bookResult.author for bookResult in bookResults]
+        edition_counts = [bookResult.editionCount for bookResult in bookResults]
 
-        return book_names, cover_ids
+        return book_names, cover_ids, published_years, authors, edition_counts
 
     print("NOT ENTERED IF \n\n\n")
 
@@ -483,13 +486,26 @@ def search(searchBy):
     # Get a list of book names.
     book_names = []
     cover_ids = []
+    published_years = []
+    authors = []
+    edition_counts = []
 
     for book in books:
         
         if 'cover_i' in book:
             book_names.append(book['title'])
-            cover_ids.append(book['cover_i'])
-            print(book['cover_i'])
+            cover_ids.append(book['cover_i'])  
+            current_book_publish_year = 0
+            if 'publish_year' in book:
+                current_book_publish_year = int(book['publish_year'][0])
+
+            published_years.append(current_book_publish_year)
+            try:
+                authors.append(book['author_name'][0])
+            except KeyError:
+                authors.append("no author")
+            
+            edition_counts.append(int(book['edition_count']))
 
             # if book already exist in table just create new association with search
             existingBook = db.session.query(Book).filter(Book.bookName == book['title']).first()
@@ -501,11 +517,12 @@ def search(searchBy):
             else: # else create new book and then create association with search
                 newBook = Book(id=len(Book.query.all())+1,
                                bookName=book['title'],
-                               coverId=book['cover_i'])
+                               coverId=book['cover_i'], 
+                               publishedYear=current_book_publish_year,
+                               author=authors[-1],
+                               editionCount=int(book['edition_count']))
                 db.session.add(newBook)
                 
-                print("newBook.id = ", newBook.id)
-                print("searccItem.id = ", searchItem.id)
                 new_book_search = book_search(id=len(book_search.query.all())+1, book_id=newBook.id, 
                             search_id=searchItem.id)
                 
@@ -513,7 +530,7 @@ def search(searchBy):
             
             db.session.commit()
 
-    return book_names, cover_ids
+    return book_names, cover_ids, published_years, authors, edition_counts
 
 def fetchBooksForExplore():
     global explore_page

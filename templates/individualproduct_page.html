@@ -55,12 +55,12 @@
                 <img src="../static/covers/{{coverId}}.jpg" alt="Book Image" class="img-fluid">
             </div>
             <div class="col-md-6">
-                <h2>Book Title</h2>
+                <h2>Book</h2>
                 <h3>{{ book.bookName }}</h3>
-                <p>Author Name</p>
-                <p>Andrew S.Tanenbaum, David J.Wetherall</J></p>
+                <p>Author</p>
+                <p>{{ book.author }}</J></p>
                 <p>Price: $35.50</p>
-                <p>Description: Computer Networks, 5/e is appropriate for Computer Networking or Introduction to Networking courses at both the undergraduate and graduate level in Computer Science, Electrical Engineering, CIS, MIS, and Business Departments.</p>
+                <p>Description: Descripton yet to be added</p>
                 <button id="addToCartBtn" class="btn btn-primary mr-2">Add to Cart</button>
                 <button id="addToWishlistBtn" class="btn btn-secondary">Add to Wishlist</button>
             </div>
@@ -69,9 +69,9 @@
     <!-- Item Description Section -->
     <section id="item-description" class="container mt-5">
         <h3>Item Description</h3>
-        <p>Computer Networks, 5/e is appropriate for Computer Networking or Introduction to Networking courses at both the undergraduate and graduate level in Computer Science, Electrical Engineering, CIS, MIS, and Business Departments. Tanenbaum takes a structured approach to explaining how networks work from the inside out. He starts with an explanation of the physical layer of networking, computer hardware and transmission systems; then works his way up to network applications. Tanenbaum's in-depth application coverage includes email; the domain name system; the World Wide Web (both client- and server-side); and multimedia (including voice over IP, Internet radio video on demand, video conferencing, and streaming media. Each chapter follows a consistent approach: Tanenbaum presents key principles, then illustrates them utilizing real-world example networks that run through the entire book―the Internet, and wireless networks, including Wireless LANs, broadband wireless and Bluetooth. The Fifth Edition includes a chapter devoted exclusively to network security. The textbook is supplemented by a Solutions Manual, as well as a Website containing PowerPoint slides, art in various forms, and other tools for instruction, including a protocol simulator whereby students can develop and test their own network protocols.</p>
+        <p>Description yet to be added</p>
         <h3>Author Details</h3>
-        <p>Author Name is a renowned author with several best-selling books to their name.</p>
+        <p>Author {{ book.author }} is a renowned author with several best-selling books to their name.</p>
     </section>
      <!-- Rating and Review Form -->
      <section id="rating-review" class="container mt-5">
