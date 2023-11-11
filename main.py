@@ -116,9 +116,13 @@ def forgot_password_page():
 def home_page():
     global saved_covers 
 
+    search({"book": {'q': 'Beloved by Toni Morrison'}})
     update_saved_covers()
     cover_ids = []
     book_names = []
+    published_years = []
+    authors = [] 
+    edition_counts = []
     unsaved_covers = []
 
     if SECTIONS.CURRENT_SECTION == SECTIONS.POPULARP_PRODUCTS:
@@ -126,15 +130,20 @@ def home_page():
         for i in range(len(PopularBooks)):
             popularBook = PopularBooks[i]
 
-            print("current popular book = ", popularBook)
-            recived_book_names, recived_cover_ids = search({"book": {'q': popularBook}})
-            print("recived_book_names = ", recived_book_names)
+            recived_book_names, recived_cover_ids, recived_published_years, recived_authors, recived_edition_counts = search({"book": {'q': popularBook}})
+
             if len(recived_book_names) >= PopularCoverIdxs[i]:
                 book_names.append(recived_book_names[PopularCoverIdxs[i]])    
                 cover_ids.append(recived_cover_ids[PopularCoverIdxs[i]])
+                published_years.append(recived_published_years[PopularCoverIdxs[i]])
+                authors.append(recived_authors[PopularCoverIdxs[i]])
+                edition_counts.append(recived_edition_counts[PopularCoverIdxs[i]])
             else:
                 book_names.append(recived_book_names[0])    
                 cover_ids.append(recived_cover_ids[0])
+                published_years.append(recived_published_years[PopularCoverIdxs[0]])
+                authors.append(recived_authors[PopularCoverIdxs[0]])
+                edition_counts.append(recived_edition_counts[PopularCoverIdxs[0]])
             
             if cover_ids[-1] not in saved_covers:
                 unsaved_covers.append(cover_ids[-1])
@@ -145,11 +154,8 @@ def home_page():
             for unsaved_cover in unsaved_covers:
                 fetchCovers(unsaved_cover)
     elif SECTIONS.CURRENT_SECTION == SECTIONS.EXPLORE:
-        recived_book_names, recived_cover_ids = fetchBooksForExplore()
-        book_names = recived_book_names
-        cover_ids = recived_cover_ids
+        book_names, cover_ids, published_years, authors, edition_counts = fetchBooksForExplore()
 
-        print(book_names)
         for cover_id in cover_ids:
             if cover_id not in saved_covers:
                 unsaved_covers.append(cover_id)
@@ -165,10 +171,13 @@ def home_page():
     print(cover_ids)
     return render_template('home_page.html',
                             book_names=book_names,
-                              cover_ids=cover_ids,
-                                sections=SECTIONS.getSections(),
-                                  current_section=SECTIONS.CURRENT_SECTION,
-                                  page=popular_page)
+                              cover_ids=cover_ids, 
+                              published_years=published_years, 
+                              authors=authors, 
+                              edition_counts=edition_counts,
+                              sections=SECTIONS.getSections(),
+                              current_section=SECTIONS.CURRENT_SECTION,
+                              page=popular_page)
 
 @app.route('/update_home_page')
 def update_home_page():
