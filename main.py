@@ -243,6 +243,10 @@ def notification_page():
     db.session.commit()
 
     return render_template("notifications_page.html", notifications=current_notifications)
+
+@app.route('/settings_page', methods=['GET'])
+def settings_page():
+    return render_template('settings_page.html')
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])

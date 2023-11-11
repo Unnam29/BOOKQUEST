@@ -20,11 +20,14 @@
 				<li><a href="#products">products</a></li>
 				<li><a href="#findmylib">findmylib</a></li>
 				<li><a href="#contact">contact</a></li>
-                <li><a href="#subscription">Subscribe</a></li>
+                
+				<li><a href="{{url_for('settings_page')}}">Settings</a></li>
 			</ul>
+			<!-- <a href="#subscription">Subscribe</a> -->
+			
 			<div class="cart nav-icon nav-common"><a href="{{url_for('notification_page')}}"><img src="../static/notification-img.png" alt="shopping-cart"></a></div>
-			<div class="cart nav-icon nav-common"><img src="https://res.cloudinary.com/de8cuyd0n/image/upload/v1520412544/E-commerce%20landing%20page/icons/shopping_cart_1x.png" alt="shopping-cart"></div>
-			<div class="menu nav-icon nav-common"><a href="{{ url_for('logout') }}">logout</a></div>
+			<!-- <div class="cart nav-icon nav-common"><img src="https://res.cloudinary.com/de8cuyd0n/image/upload/v1520412544/E-commerce%20landing%20page/icons/shopping_cart_1x.png" alt="shopping-cart"></div>
+			<div class="menu nav-icon nav-common"><a href="{{ url_for('logout') }}">logout</a></div> -->
 		</nav>
 		
 	</header>
@@ -72,6 +75,8 @@
 			<button><a href="{{url_for('prevPageClicked', section=current_section)}}">prev page</a></button>
 			<button><a href="{{url_for('nextPageClicked', section=current_section)}}">next page</a></button>
 		  </div>
+		
+		
 	</turbo-frame>
 	
 	<!-- <section id="products">

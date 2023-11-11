@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <div class="wrapper">
   <div class="main" class="dark-mode">
-    <h1><i class="fa fa-arrow-left"></i>Settings</h1>
+    <h1><i class="fa fa-arrow-left" onclick="javascript:history.back()"></i>Settings</h1>
  <style>
         body{
         background-image: linear-gradient(to right, #d1d1d1, #c8c4dd, #bdb7e8, #b0aaf4, #a29eff);
@@ -166,13 +166,13 @@
      <h4>Dark Mode</h4>
     </div>
         <ul>
-        <li><i class="fa fa-user"></i>Account</li>
-        <li><i class="fa fa-flag"></i>Notification</li>
-        <li><i class="fa fa-lock"></i>Privacy</li>
-        <li><i class="fa fa-shield"></i>Security</li>
-        <li><i class="fa fa-question"></i>help</li>
+        <li><a href=""><i class="fa fa-user"></i>Account</a></li>
+        <li><a href="{{url_for('notification_page')}}"><i class="fa fa-flag"></i>Notification</a></li>
+        <li><a href=""><i class="fa fa-lock"></i>Privacy</a></li>
+        <li><a href=""><i class="fa fa-shield"></i>Security</a></li>
+        <li><a href=""><i class="fa fa-question"></i>help</a></li>
         </ul>
-    <h4><i class="fa fa-sign-out"></i>Log out</h4>
+    <h4><a href="{{ url_for('logout') }}"><i class="fa fa-sign-out"></i>Log out</a></h4>
   </div>
 </div>
  </html>
