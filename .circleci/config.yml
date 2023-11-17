@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   python: circleci/python@2.0.3
+  docker: circleci/docker@1.7.0
 
 jobs:
   build_and_test: # this can be any name you choose
