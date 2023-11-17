@@ -529,7 +529,10 @@ def update_quantity():
 
 @app.route('/make_payment', methods=['GET', 'POST'])
 def make_payment():
-    print(request.form)
+    user_id = db.session.query(User).get(session['user']).id
+    books_in_cart = db.session.query(CartItem).filter(CartItem.user_id == user_id)
+    if request.form.get("cvv") == '':
+        print("orderplaced")
 
     return redirect('/home_page')
 ################################## helper functions #################################
