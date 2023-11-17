@@ -270,7 +270,18 @@ def settings_page():
 
 @app.route('/cart_page', methods=['GET'])
 def cart_page():
-    return render_template('cart_page.html')
+    cart_items = db.session.query(CartItem).all()
+
+    cart_item_names = [db.session.query(Book).filter(Book.id == cart_item.book_id).first().bookName for cart_item in cart_items]
+    subtotal = sum([cart_item.total_price for cart_item in cart_items])
+    tax = subtotal * 0.1
+    total = subtotal + tax
+    return render_template('cart_page.html', 
+                           cart_items=cart_items,
+                           cart_item_names=cart_item_names,
+                           subtotal=subtotal,
+                           tax=tax,
+                           total=total)
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
