@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart Page</title>
     <!-- Bootstrap CSS -->
+    <style>
+        .cart-icon {
+        position: relative;
+        }
+
+        .cart-counter {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: red;
+        color: white;
+        padding: 5px;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        font-size: 12px;
+        }
+    </style>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
@@ -34,11 +53,11 @@
                             <td>{{cart_item_names[i]}}</td>
                             <td>{{cart_items[i].price}}</td>
                             <td>
-                                <input type="number" class="form-control" value="{{cart_items[i].quantity}}" min="1">
+                                <input type="number" class="form-control" id='{{cart_items[i].id}}' value="{{cart_items[i].quantity}}" min="1">
                             </td>
                             <td>{{cart_items[i].total_price}}</td>
                             <td>
-                                <a href="{{url_for('remove_item_from_cart', item_id=cart_items[i].id)}}"><button class="btn btn-danger btn-sm remove-item">Remove</button></a>
+                                <button class="btn btn-danger btn-sm remove-item">Remove</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -75,9 +94,51 @@
         $(document).ready(function() {
             // Remove item from cart
             $('.remove-item').click(function() {
-                $(this).closest('tr').remove();
+                var tr = $(this).closest('tr');
+
+                // Find the input inside the tr
+                var input = tr.find('input');
+
+                // Get the value of the input
+                var item_id = input.attr('id');
+
+                $.ajax({
+                    url: '/remove_item_from_cart',
+                    type: 'POST',
+                    data: {
+                        item_id: item_id
+                    },
+                    success: function(response) {
+                        window.location.href = window.location.href;
+                    }
+                });
+                // $(this).closest('tr').remove();
             });
         });
     </script>
+    <script>
+        $(document).ready(function() {
+        
+          $('.form-control').change(function() {
+        
+            var quantity = $(this).val();
+            var item_id = $(this).attr('id');
+            
+            $.ajax({
+              url: '/update_quantity',
+              type: 'POST',
+              data: {
+                item_id: item_id, 
+                quantity: quantity
+              },
+              success: function(response) {
+                window.location.href = window.location.href;
+              }
+            });
+        
+          });
+        
+        });
+        </script>
 </body>
 </html>

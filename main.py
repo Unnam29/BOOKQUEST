@@ -198,7 +198,8 @@ def home_page():
                               edition_counts=edition_counts,
                               sections=SECTIONS.getSections(),
                               current_section=SECTIONS.CURRENT_SECTION,
-                              page=popular_page)
+                              page=popular_page,
+                              cart_items_count=len(db.session.query(CartItem).all()))
 
 @app.route('/update_home_page')
 def update_home_page():
@@ -475,7 +476,7 @@ def sectionClicked(section):
 
     return redirect('/home_page')
 
-@app.route('/add_to_cart/<book_id>')
+@app.route('/add_to_cart/<book_id>', methods=['GET', 'POST'])
 def add_to_cart(book_id):
     user_id = db.session.query(User).get(session['user']).id
 
@@ -488,7 +489,7 @@ def add_to_cart(book_id):
 
         db.session.commit()
     else: # else create a new cart item
-        new_cart_item = CartItem(id=len(db.session.query(CartItem).all())+1,
+        new_cart_item = CartItem(id=db.session.query(CartItem).all()[-1].id+1,
                                 book_id=book_id,
                                 user_id=user_id,
                                 price=30.0,
@@ -499,6 +500,27 @@ def add_to_cart(book_id):
 
     return redirect('/cart_page')
 
+@app.route('/remove_item_from_cart', methods=['GET', 'POST'])
+def remove_item_from_cart():
+    item_id = request.form.get('item_id')
+
+    db.session.delete(db.session.query(CartItem).get(item_id))
+    db.session.commit()
+
+    return redirect('/cart_page')
+
+@app.route('/update_quantity', methods=['GET', 'POST'])
+def update_quantity():
+    item_id = request.form.get('item_id')
+    quantity = int(request.form.get('quantity'))
+
+    cart_item = db.session.query(CartItem).filter(CartItem.id == item_id).first()
+    cart_item.quantity = quantity
+    cart_item.total_price = quantity * cart_item.price
+
+    db.session.commit()
+
+    return redirect('/cart_page')
 ################################## helper functions #################################
 # used to send verification mail to user
 def send_notification(userEmail):

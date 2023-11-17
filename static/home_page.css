@@ -96,10 +96,7 @@ header nav .nav-icon {
 	header nav ul li {
 		display: none;
 	}
-	header nav .cart {
-		width: 15%;
-		text-align: right;
-	}
+	
 	header nav .menu {
 		width: 20%;
 	}
@@ -1021,3 +1018,30 @@ footer .copy-right {
 	box-shadow: inset 0 0 0 100vmax var(--_c);
 	color: #fff;
   }
+
+  /* test 4 */
+
+  .cart {
+    position: relative;
+}
+
+.circle {
+    width: 20px;
+    height: 20px;
+    background-color: #e6b58f;
+    border-radius: 50%;
+    text-align: center;
+    display: flex;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    align-items: center;
+    justify-content: center;
+    color: black;
+}
+  
+  .text {
+	font-size: 11px;
+	font-weight: bold;
+  }
+  
