@@ -69,6 +69,16 @@ class Notification(db.Model):
     text = db.Column(db.String(500), nullable=False)
     isRead = db.Column(db.Boolean(), default=False)
 
+# cart-items db
+class CartItem(db.Model):
+    __tablename__ = 'cartitems'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    book_id = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    total_price = db.Column(db.Float, nullable=False)
+    
 # class Section(db.Model):
 #     pass
 
@@ -257,6 +267,10 @@ def notification_page():
 @app.route('/settings_page', methods=['GET'])
 def settings_page():
     return render_template('settings_page.html')
+
+@app.route('/cart_page', methods=['GET'])
+def cart_page():
+    return render_template('cart_page.html')
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
