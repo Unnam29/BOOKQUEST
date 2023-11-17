@@ -61,7 +61,8 @@
                 <p>{{ book.author }}</J></p>
                 <p>Price: $35.50</p>
                 <p>Description: Descripton yet to be added</p>
-                <button id="addToCartBtn" class="btn btn-primary mr-2">Add to Cart</button>
+
+                <a href="{{url_for('add_to_cart', book_id=book.id)}}"><button id="addToCartBtn" class="btn btn-primary mr-2">Add to Cart</button></a>
                 <button id="addToWishlistBtn" class="btn btn-secondary">Add to Wishlist</button>
             </div>
         </div>

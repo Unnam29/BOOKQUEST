@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, request, session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
 from dotenv import load_dotenv
 load_dotenv()
 import os
@@ -467,13 +468,37 @@ def prevPageClicked(section):
 
     return redirect('/home_page')
 
-
 @app.route('/sectionClicked/<section>', methods=['GET', 'POST'])
 def sectionClicked(section):
 
     SECTIONS.CURRENT_SECTION = section
 
     return redirect('/home_page')
+
+@app.route('/add_to_cart/<book_id>')
+def add_to_cart(book_id):
+    user_id = db.session.query(User).get(session['user']).id
+
+    # if book already in cart increase quantity
+    cart_item = db.session.query(CartItem).filter(and_(CartItem.book_id == book_id, CartItem.user_id == user_id)).first()
+
+    if cart_item != None:
+        cart_item.quantity = cart_item.quantity + 1
+        cart_item.total_price = cart_item.quantity * cart_item.price
+
+        db.session.commit()
+    else: # else create a new cart item
+        new_cart_item = CartItem(id=len(db.session.query(CartItem).all())+1,
+                                book_id=book_id,
+                                user_id=user_id,
+                                price=30.0,
+                                quantity=1,
+                                total_price=30.0)
+        db.session.add(new_cart_item)
+        db.session.commit()
+
+    return redirect('/cart_page')
+
 ################################## helper functions #################################
 # used to send verification mail to user
 def send_notification(userEmail):

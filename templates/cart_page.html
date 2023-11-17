@@ -38,7 +38,7 @@
                             </td>
                             <td>{{cart_items[i].total_price}}</td>
                             <td>
-                                <button class="btn btn-danger btn-sm remove-item">Remove</button>
+                                <a href="{{url_for('remove_item_from_cart', item_id=cart_items[i].id)}}"><button class="btn btn-danger btn-sm remove-item">Remove</button></a>
                             </td>
                         </tr>
                         {% endfor %}
