@@ -199,7 +199,7 @@ def home_page():
                               sections=SECTIONS.getSections(),
                               current_section=SECTIONS.CURRENT_SECTION,
                               page=popular_page,
-                              cart_items_count=len(db.session.query(CartItem).all()))
+                              cart_items_count=getCartItemsCount())
 
 @app.route('/update_home_page')
 def update_home_page():
@@ -272,7 +272,8 @@ def settings_page():
 
 @app.route('/cart_page', methods=['GET'])
 def cart_page():
-    cart_items = db.session.query(CartItem).all()
+
+    cart_items = getCartItems()
 
     cart_item_names = [db.session.query(Book).filter(Book.id == cart_item.book_id).first().bookName for cart_item in cart_items]
     subtotal = sum([cart_item.total_price for cart_item in cart_items])
@@ -284,6 +285,10 @@ def cart_page():
                            subtotal=subtotal,
                            tax=tax,
                            total=total)
+
+@app.route('/billing_page', methods=["GET"])
+def billing_page():
+    return render_template('billing_page.html')
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
@@ -521,6 +526,12 @@ def update_quantity():
     db.session.commit()
 
     return redirect('/cart_page')
+
+@app.route('/make_payment', methods=['GET', 'POST'])
+def make_payment():
+    print(request.form)
+
+    return redirect('/home_page')
 ################################## helper functions #################################
 # used to send verification mail to user
 def send_notification(userEmail):
@@ -737,6 +748,15 @@ def sendNotification(msg):
     
     db.session.add(newNotification)
     db.session.commit()
+
+def getCartItems():
+    user_id = db.session.query(User).get(session['user']).id
+    cart_items = db.session.query(CartItem).filter(CartItem.user_id == user_id).all()
+
+    return cart_items
+
+def getCartItemsCount():
+    return len(getCartItems())
 # send_notification("pythontest363@gmail.com")
 
 # book_names, cover_ids = search("3 mistakes of my life")
