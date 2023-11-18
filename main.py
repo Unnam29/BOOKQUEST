@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, request, session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
 from dotenv import load_dotenv
 load_dotenv()
 import os
@@ -69,6 +70,16 @@ class Notification(db.Model):
     text = db.Column(db.String(500), nullable=False)
     isRead = db.Column(db.Boolean(), default=False)
 
+# cart-items db
+class CartItem(db.Model):
+    __tablename__ = 'cartitems'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    book_id = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    total_price = db.Column(db.Float, nullable=False)
+    
 # class Section(db.Model):
 #     pass
 
@@ -187,7 +198,8 @@ def home_page():
                               edition_counts=edition_counts,
                               sections=SECTIONS.getSections(),
                               current_section=SECTIONS.CURRENT_SECTION,
-                              page=popular_page)
+                              page=popular_page,
+                              cart_items_count=getCartItemsCount())
 
 @app.route('/update_home_page')
 def update_home_page():
@@ -257,6 +269,26 @@ def notification_page():
 @app.route('/settings_page', methods=['GET'])
 def settings_page():
     return render_template('settings_page.html')
+
+@app.route('/cart_page', methods=['GET'])
+def cart_page():
+
+    cart_items = getCartItems()
+
+    cart_item_names = [db.session.query(Book).filter(Book.id == cart_item.book_id).first().bookName for cart_item in cart_items]
+    subtotal = sum([cart_item.total_price for cart_item in cart_items])
+    tax = subtotal * 0.1
+    total = subtotal + tax
+    return render_template('cart_page.html', 
+                           cart_items=cart_items,
+                           cart_item_names=cart_item_names,
+                           subtotal=subtotal,
+                           tax=tax,
+                           total=total)
+
+@app.route('/billing_page', methods=["GET"])
+def billing_page():
+    return render_template('billing_page.html')
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
@@ -442,11 +474,65 @@ def prevPageClicked(section):
 
     return redirect('/home_page')
 
-
 @app.route('/sectionClicked/<section>', methods=['GET', 'POST'])
 def sectionClicked(section):
 
     SECTIONS.CURRENT_SECTION = section
+
+    return redirect('/home_page')
+
+@app.route('/add_to_cart/<book_id>', methods=['GET', 'POST'])
+def add_to_cart(book_id):
+    user_id = db.session.query(User).get(session['user']).id
+
+    # if book already in cart increase quantity
+    cart_item = db.session.query(CartItem).filter(and_(CartItem.book_id == book_id, CartItem.user_id == user_id)).first()
+
+    if cart_item != None:
+        cart_item.quantity = cart_item.quantity + 1
+        cart_item.total_price = cart_item.quantity * cart_item.price
+
+        db.session.commit()
+    else: # else create a new cart item
+        new_cart_item = CartItem(id=db.session.query(CartItem).all()[-1].id+1,
+                                book_id=book_id,
+                                user_id=user_id,
+                                price=30.0,
+                                quantity=1,
+                                total_price=30.0)
+        db.session.add(new_cart_item)
+        db.session.commit()
+
+    return redirect('/cart_page')
+
+@app.route('/remove_item_from_cart', methods=['GET', 'POST'])
+def remove_item_from_cart():
+    item_id = request.form.get('item_id')
+
+    db.session.delete(db.session.query(CartItem).get(item_id))
+    db.session.commit()
+
+    return redirect('/cart_page')
+
+@app.route('/update_quantity', methods=['GET', 'POST'])
+def update_quantity():
+    item_id = request.form.get('item_id')
+    quantity = int(request.form.get('quantity'))
+
+    cart_item = db.session.query(CartItem).filter(CartItem.id == item_id).first()
+    cart_item.quantity = quantity
+    cart_item.total_price = quantity * cart_item.price
+
+    db.session.commit()
+
+    return redirect('/cart_page')
+
+@app.route('/make_payment', methods=['GET', 'POST'])
+def make_payment():
+    user_id = db.session.query(User).get(session['user']).id
+    books_in_cart = db.session.query(CartItem).filter(CartItem.user_id == user_id)
+    if request.form.get("cvv") == '':
+        print("orderplaced")
 
     return redirect('/home_page')
 ################################## helper functions #################################
@@ -665,6 +751,15 @@ def sendNotification(msg):
     
     db.session.add(newNotification)
     db.session.commit()
+
+def getCartItems():
+    user_id = db.session.query(User).get(session['user']).id
+    cart_items = db.session.query(CartItem).filter(CartItem.user_id == user_id).all()
+
+    return cart_items
+
+def getCartItemsCount():
+    return len(getCartItems())
 # send_notification("pythontest363@gmail.com")
 
 # book_names, cover_ids = search("3 mistakes of my life")
