@@ -1021,11 +1021,11 @@ footer .copy-right {
 
   /* test 4 */
 
-  .cart {
+.cart {
     position: relative;
 }
 
-.circle {
+.cart-circle {
     width: 20px;
     height: 20px;
     background-color: #e6b58f;
@@ -1035,6 +1035,21 @@ footer .copy-right {
     position: absolute;
     top: 20px;
     right: 20px;
+    align-items: center;
+    justify-content: center;
+    color: black;
+}
+
+.notification-circle {
+	width: 20px;
+    height: 20px;
+    background-color: #e6b58f;
+    border-radius: 50%;
+    text-align: center;
+    display: flex;
+    position: absolute;
+    top: 20px;
+    right: 30px;
     align-items: center;
     justify-content: center;
     color: black;

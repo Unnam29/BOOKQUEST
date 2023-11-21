@@ -199,7 +199,8 @@ def home_page():
                               sections=SECTIONS.getSections(),
                               current_section=SECTIONS.CURRENT_SECTION,
                               page=popular_page,
-                              cart_items_count=getCartItemsCount())
+                              cart_items_count=getCartItemsCount(),
+                              notification_count=getUnreadNotificationCount())
 
 @app.route('/update_home_page')
 def update_home_page():
@@ -264,7 +265,7 @@ def notification_page():
     
     db.session.commit()
 
-    return render_template("notifications_page.html", notifications=current_notifications)
+    return render_template("notifications_page.html", notifications=current_notifications[::-1])
 
 @app.route('/settings_page', methods=['GET'])
 def settings_page():
@@ -760,6 +761,12 @@ def getCartItems():
 
 def getCartItemsCount():
     return len(getCartItems())
+
+def getUnreadNotificationCount():
+    unread_notifications = db.session.query(Notification).filter(Notification.user == session['user'], Notification.isRead == False).all()
+
+    return len(unread_notifications)
+
 # send_notification("pythontest363@gmail.com")
 
 # book_names, cover_ids = search("3 mistakes of my life")
