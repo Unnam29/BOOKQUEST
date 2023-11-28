@@ -570,6 +570,25 @@ def make_payment():
     books_in_cart = db.session.query(CartItem).filter(CartItem.user_id == user_id)
     if request.form.get("cvv") == '':
         print("orderplaced")
+        sendNotification("Your Order is placed")
+        for book_in_cart in books_in_cart:
+            order_id = 0
+
+            if len(db.session.query(Order).all()) != 0:
+                order_id = db.session.query(Order).all()[-1].id+1
+
+            new_order = Order(id=order_id,
+                              user_id=book_in_cart.user_id,
+                              book_id=book_in_cart.book_id,
+                              quantity=book_in_cart.quantity,
+                              price=book_in_cart.total_price,
+                              status="order being packed")
+            
+            sendNotification(f"{db.session.query(Book).filter(Book.id==book_in_cart.book_id).all()[0].bookName} : {new_order.status}")
+            db.session.add(new_order)
+            db.session.delete(book_in_cart)
+            db.session.commit()
+
 
     return redirect('/home_page')
 
