@@ -1,178 +1,120 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<div class="wrapper">
-  <div class="main" class="dark-mode">
-    <h1><i class="fa fa-arrow-left" onclick="javascript:history.back()"></i>Settings</h1>
- <style>
-        body{
-        background-image: linear-gradient(to right, #d1d1d1, #c8c4dd, #bdb7e8, #b0aaf4, #a29eff);
-        font-family:'Lato';  
-        }
-        .wrapper{
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        margin-left: auto;
-        margin-right: auto;
-        }
-        .main{
-        /dark mode/
-        background-color: var(--bg-color);
-        color: var(--font-color);
-        /-----/
-        width:300px;
-        height:510px;
-        /border: 2px solid #1A237E;/
-        box-shadow: 0px 8px 60px -20px #E0F7FA;
-        border-radius: 10px;
-        padding:10px;
-        padding-top:10px;
-        }
-        img{
-        opacity: 0.8;
-        width:100px;
-        height:auto;  
-        margin:auto;
-        position: fixed;
-        transform: translate(-50%, -50%);
-        top:31.5%;
-        left:50%;
-        border-radius: 50px;
-        }
-        .image{
-        border: 2px solid var(--font-color);
-        border-style: dotted;
-        width:105px;
-        height:105px;
-        left:32%;
-        border-radius: 100px;
-        position:relative;
-        position: 50% 50%;
-        box-shadow: 0px 8px 60px -30px #FFFDE7;
-        }
-        ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        padding-top:20px;
-        }
-        li,h1,h4{
-        width:100%;
-        padding:10px;
-        cursor:pointer;
-        }
-        i{
-        padding-right:10px;
-        cursor:pointer;
-        }
-        h4{
-        left:10%;
-        padding-right:30px;
-        padding-top:0;
-        }
-        .fa-edit {
-        color: #FFFF;
-        position: absolute;
-        top: 37%;
-        left: 48%;
-        }
-        /darkmode/
-        :root {
-            --primary-color: #302AE6;
-            --secondary-color: #536390;
-            --font-color: #424242;
-            --bg-color: #fff;
-            --heading-color: #292922;
-        }
-        [data-theme="dark"] {
-            --primary-color: #9A97F3;
-            --secondary-color: #818cab;
-            --font-color: #e1e1ff;
-            --bg-color: #161625;
-            --heading-color: #818cab;
-        }
-        .theme-switch input {
-        display:none;
-        }
-        .theme-switch-wrapper {
-        display: flex;
-        align-items: center;
-        margin-bottom:-12%;
-        }
-        .theme-switch {
-        display: inline-block;
-        height: 27px;
-        width: 50px;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Page</title>
+    <!-- Bootstrap CSS -->
+    <style>
+        .cart-icon {
         position: relative;
         }
 
-        .slider {
-        background-color: #ccc;
-        bottom: 0;
-        cursor: pointer;
-        left: 0;
+        .cart-counter {
         position: absolute;
-        right: 0;
-        top: 0;
-        transition: .4s;
-        }
-        .slider:before {
-        content: "";
-        background-color: #fff;
-        bottom: 4px;
-        height: 18px;
-        width: 18px;
-        left: 4px;
-        position: absolute;
-        transition: .4s;
-        }
-        input:checked + .slider {
-        background-color: #BAFF29;
-        }
-        input:checked + .slider:before {
-        transform: translateX(12px);
-        }
-        .slider.round {
-        border-radius: 34px;
-        }
-        .slider.round:before {
+        top: -10px;
+        right: -10px;
+        background-color: red;
+        color: white;
+        padding: 5px;
         border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        font-size: 12px;
         }
-</style>
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-<div class="image"> 
-<img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/ce4d3ce1-8ddc-41d8-8499-f8781586dfd1/ddovc25-c4a8dc99-f4a3-4152-8828-98c45127c486.jpg/v1/fill/w_600,h_600,q_75,strp/s_h_i_f_t_by_ithar14_ddovc25-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NjAwIiwicGF0aCI6IlwvZlwvY2U0ZDNjZTEtOGRkYy00MWQ4LTg0OTktZjg3ODE1ODZkZmQxXC9kZG92YzI1LWM0YThkYzk5LWY0YTMtNDE1Mi04ODI4LTk4YzQ1MTI3YzQ4Ni5qcGciLCJ3aWR0aCI6Ijw9NjAwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.MRCl1lY1wSahAvemyZGZycJODWNYPDgGPF0gTel9mic">
-</div>
-<script> 
-    const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
-    function switchTheme(e) {
-        if (e.target.checked) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        }
-        else {
-                document.documentElement.setAttribute('data-theme', 'light');
-        }    
-    }
-        toggleSwitch.addEventListener('change', switchTheme, false); 
-</script>
-    <i class="fa fa-edit"></i>
-    <div class="theme-switch-wrapper">
-    <label class="theme-switch" for="checkbox">
-        <input type="checkbox" id="checkbox" />
-        <div class="slider round"></div>
-     </label>
-     <h4>Dark Mode</h4>
-    </div>
-        <ul>
-        <li><a href=""><i class="fa fa-user"></i>Account</a></li>
-        <li><a href="{{url_for('orders_page')}}"><i class="fa fa-shopping-cart"></i>Orders</a></li>
-        <li><a href="{{url_for('notification_page')}}"><i class="fa fa-flag"></i>Notification</a></li>
+<body>
+    <!-- Header Section -->
+    <header class="bg-dark text-white text-center p-4">
+        <h1>Orders</h1>
+    </header>
 
-        <li><a href=""><i class="fa fa-question"></i>help</a></li>
-        </ul>
-    <h4><a href="{{ url_for('logout') }}"><i class="fa fa-sign-out"></i>Log out</a></h4>
-  </div>
-</div>
- </html>
+    <!-- Cart Items -->
+    <section id="cart-items" class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Your Orders</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(order_items|length) %}
+                        <tr>
+                            <td>{{order_item_names[i]}}</td>
+                            <td>{{order_items[i].price}}</td>
+                            <td>{{order_items[i].quantity}}</td>
+                            <td>{{order_items[i].price}}</td>
+                            <td>{{order_items[i].status}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap & jQuery JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Remove item from cart
+            $('.remove-item').click(function() {
+                var tr = $(this).closest('tr');
+
+                // Find the input inside the tr
+                var input = tr.find('input');
+
+                // Get the value of the input
+                var item_id = input.attr('id');
+
+                $.ajax({
+                    url: '/remove_item_from_cart',
+                    type: 'POST',
+                    data: {
+                        item_id: item_id
+                    },
+                    success: function(response) {
+                        window.location.href = window.location.href;
+                    }
+                });
+                // $(this).closest('tr').remove();
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+        
+          $('.form-control').change(function() {
+        
+            var quantity = $(this).val();
+            var item_id = $(this).attr('id');
+            
+            $.ajax({
+              url: '/update_quantity',
+              type: 'POST',
+              data: {
+                item_id: item_id, 
+                quantity: quantity
+              },
+              success: function(response) {
+                window.location.href = window.location.href;
+              }
+            });
+        
+          });
+        
+        });
+        </script>
+</body>
+</html>

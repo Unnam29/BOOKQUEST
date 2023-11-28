@@ -18,13 +18,13 @@
         margin-right: auto;
         }
         .main{
-        /*dark mode*/
+        /dark mode/
         background-color: var(--bg-color);
         color: var(--font-color);
-        /*-----*/
+        /-----/
         width:300px;
         height:510px;
-        /*border: 2px solid #1A237E;*/
+        /border: 2px solid #1A237E;/
         box-shadow: 0px 8px 60px -20px #E0F7FA;
         border-radius: 10px;
         padding:10px;
@@ -78,7 +78,7 @@
         top: 37%;
         left: 48%;
         }
-        /*darkmode*/
+        /darkmode/
         :root {
             --primary-color: #302AE6;
             --secondary-color: #536390;
@@ -167,9 +167,9 @@
     </div>
         <ul>
         <li><a href=""><i class="fa fa-user"></i>Account</a></li>
+        <li><a href="{{url_for('orders_page')}}"><i class="fa fa-shopping-cart"></i>Orders</a></li>
         <li><a href="{{url_for('notification_page')}}"><i class="fa fa-flag"></i>Notification</a></li>
-        <li><a href=""><i class="fa fa-lock"></i>Privacy</a></li>
-        <li><a href=""><i class="fa fa-shield"></i>Security</a></li>
+
         <li><a href=""><i class="fa fa-question"></i>help</a></li>
         </ul>
     <h4><a href="{{ url_for('logout') }}"><i class="fa fa-sign-out"></i>Log out</a></h4>

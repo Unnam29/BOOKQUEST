@@ -326,6 +326,16 @@ def wishlist_page():
 
     return render_template('wishlist_page.html', wishlist_products=wishlist_products, book_names=book_names, book_ids=book_ids)
 
+@app.route('/orders_page', methods=['GET'])
+def orders_page():
+    order_items = db.session.query(Order).filter(Order.user_id == db.session.query(User).filter(User.email==session['user']).first().id).all()[::-1]
+
+    order_item_names = [db.session.query(Book).filter(Book.id == order_item.book_id).first().bookName for order_item in order_items]
+
+    return render_template('orders_page.html', 
+                           order_items=order_items,
+                           order_item_names=order_item_names)
+
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
