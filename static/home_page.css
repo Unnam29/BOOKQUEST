@@ -1020,8 +1020,7 @@ footer .copy-right {
   }
 
   /* test 4 */
-
-.cart {
+  .cart {
     position: relative;
 }
 
@@ -1034,7 +1033,7 @@ footer .copy-right {
     display: flex;
     position: absolute;
     top: 20px;
-    right: 20px;
+    right: -40px;
     align-items: center;
     justify-content: center;
     color: black;
@@ -1049,7 +1048,7 @@ footer .copy-right {
     display: flex;
     position: absolute;
     top: 20px;
-    right: 30px;
+    right: -30px;
     align-items: center;
     justify-content: center;
     color: black;
@@ -1060,3 +1059,15 @@ footer .copy-right {
 	font-weight: bold;
   }
   
+
+nav {
+	position: relative;
+}
+	
+.options {
+	float: right;
+	width: 50px; 
+	position: fixed;
+	top: 210px;
+	right: 30px;
+}
