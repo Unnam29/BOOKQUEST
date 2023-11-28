@@ -527,8 +527,8 @@ def logout():
 
 @app.route('/nextPageClicked/<section>', methods=['GET', 'POST'])
 def nextPageClicked(section):
-    global explore_page, recommendation_page, popular_page
-    print("nextPage cliecked")
+    global explore_page, recommendation_page, popular_page, search_page_number
+    print("nextPage cliecked\nsection = ", section)
 
     if section == SECTIONS.POPULARP_PRODUCTS:
         if popular_page != 1:
@@ -544,12 +544,22 @@ def nextPageClicked(section):
 
         if recommendation_page <  recommendation_page_count:
             recommendation_page += 1
+    elif section.split('-')[0] == 'search':
+        search_query = section.split('-')[1]
+
+        print("search query = ", search_query)
+        searchBy = {"book": {'q': search_query}}
+        book_names, cover_ids, published_years, authors, edition_counts = search(searchBy=searchBy)
+        if len(book_names) > search_page_number * ITEMS_IN_SEARCH_PAGE:
+            search_page_number += 1
+
+        return redirect(url_for('search_clicked', search=search_query))
 
     return redirect('/home_page')
 
 @app.route('/prevPageClicked/<section>', methods=['GET', 'POST'])
 def prevPageClicked(section):
-    global explore_page, recommendation_page, popular_page
+    global explore_page, recommendation_page, popular_page, search_page_number
     print("prevPage cliecked")
 
     if section == SECTIONS.POPULARP_PRODUCTS:
@@ -564,9 +574,14 @@ def prevPageClicked(section):
     elif section == SECTIONS.RECOMMENDATIOS:
         if recommendation_page - 1 != 0:
             recommendation_page -= 1
+    elif section.split('-')[0] == 'search':
+        search_query = section.split('-')[1]
+        if search_page_number != 1:
+            search_page_number -= 1
+
+        return redirect(url_for('search_clicked', search=search_query))
 
     return redirect('/home_page')
-
 @app.route('/sectionClicked/<section>', methods=['GET', 'POST'])
 def sectionClicked(section):
 
@@ -694,10 +709,14 @@ def search_clicked():
 
     book_names, cover_ids, published_years, authors, edition_counts = search(searchBy={"book": {'q': search_term}})
 
+    print("len(book_names) = ", len(book_names))
+
     unsaved_covers = []
     book_names = book_names[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
     cover_ids = cover_ids[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
     authors = authors[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
+
+    print("len(book_names) = ", len(book_names))
 
     for cover_id in cover_ids:
         if cover_id not in saved_covers:

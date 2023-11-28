@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products Page</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/search_page.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="bg-dark text-white text-center p-4">
+        <div class="nav-search">
+            <form class="search-form" method='post' action="{{url_for('search_clicked')}}">
+              <input type="text" placeholder="Search" name="search">
+              <button type="submit">
+                ok
+              </button>
+            </form> 
+        </div>
+    </header>
+
+    <!-- Products Section -->
+    <section id="products" class="container mt-5">
+        <div class="row">
+            <!-- Book 1 -->
+            {% for i in range(book_names|length) %}
+            
+            <div class="col-md-3">
+                <a href="{{url_for('individualproduct_page', coverId=cover_ids[i])}}">
+                <div class="card mb-2">
+                    <img src="../static/covers/{{cover_ids[i]}}.jpg" class="card-img-top" alt="Book 1">
+                    <div class="card-body">
+                        <h5 class="card-title">{{book_names[i]}}</h5>
+                        <p class="card-text">Description for Book.</p>
+                        <p class="card-text">Price: $19.99</p>
+                    </div>
+                </div>
+            </a>
+            </div>
+           
+            {% endfor %}
+        </div>
+    </section>
+    <div class="paging-buttons">
+        <button><a href="{{url_for('prevPageClicked', section='search-'+search_term)}}">prev page</a></button>
+        <button><a href="{{url_for('nextPageClicked', section='search-'+search_term)}}">next page</a></button>
+      </div>
+</body>
+</html>

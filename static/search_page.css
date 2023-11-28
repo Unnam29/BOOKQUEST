@@ -12,6 +12,16 @@ body {
 	overflow-x: hidden;
 }
 
+a {
+	text-decoration: none;
+	color: inherit; 
+  }
+  
+  a:hover {
+	text-decoration: none;
+	color: inherit;
+  }
+
 header nav {
 	background-color: #ffffff;
 	width: 100%;
@@ -236,15 +246,115 @@ header {
 }
 
 .card {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-    transition: 0.3s;
-}
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
+	transition: 0.3s;
+	height: 350px; /* Explicit height */
+  }
+  
+  .card-img-top {
+	height: 150px; /* Explicit height */
+	object-fit: cover; 
+  }
+  
+  .card:hover {
+	box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  }
 
-.card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-}
+.search-form {
+	display: inline-block;
+	vertical-align: middle;  
+  }
+  
+  .search-form input[type="text"] {
+	padding: 8px;
+	border: 1px solid #ccc; 
+	border-radius: 20px 0 0 20px;
+  }
+  
+  .search-form button {
+	padding: 8px 12px; 
+	border: 1px solid #ccc;
+	border-left: none;
+	border-radius: 0 20px 20px 0;
+	background: #f5f5f5; 
+  }
+  
+  .nav-search {
+	/* float: right; */
+	padding: 10px; 
+  }
+  
+  .search-form {
+	display: inline-block;
+  }
+  
+  /*  */
 
-.card-img-top {
-    height: 300px;
-    object-fit: cover;
-}
+  .paging-buttons {
+	display: flex; 
+	margin: 20px auto;
+
+	width: 230px;
+	gap: 10px;
+	--b: 5px;   /* the border thickness */
+	--h: 1.8em; /* the height */
+  }
+  
+  .paging-buttons button {
+	--_c: #1e3a8a;
+	flex: calc(1.25 + var(--_s,0));
+	min-width: 0;
+	font-family: 'Lato';
+	font-size: 20px;
+	font-weight: bold;
+	height: var(--h);
+	cursor: pointer;
+	color: var(--_c);
+	border: var(--b) solid var(--_c);
+	background: 
+	  conic-gradient(at calc(100% - 1.3*var(--b)) 0,var(--_c) 209deg, #0000 211deg) 
+	  border-box;
+	clip-path: polygon(0 0,100% 0,calc(100% - 0.577*var(--h)) 100%,0 100%);
+	padding: 0 calc(0.288*var(--h)) 0 0;
+	margin: 0 calc(-0.288*var(--h)) 0 0;
+	box-sizing: border-box;
+	transition: flex .4s;
+  }
+  .paging-buttons button + button {
+	--_c: #e6b58f;
+	flex: calc(.75 + var(--_s,0));
+	background: 
+	  conic-gradient(from -90deg at calc(1.3*var(--b)) 100%,var(--_c) 119deg, #0000 121deg) 
+	  border-box;
+	clip-path: polygon(calc(0.577*var(--h)) 0,100% 0,100% 100%,0 100%);
+	margin: 0 0 0 calc(-0.288*var(--h));
+	padding: 0 0 0 calc(0.288*var(--h));
+  }
+  .paging-buttons button:focus-visible {
+	outline-offset: calc(-2*var(--b));
+	outline: calc(var(--b)/2) solid #000;
+	background: none;
+	clip-path: none;
+	margin: 0;
+	padding: 0;
+  }
+  .paging-buttons button:focus-visible + button {
+	background: none;
+	clip-path: none;
+	margin: 0;
+	padding: 0;
+  }
+  .paging-buttons button:has(+ button:focus-visible) {
+	background: none;
+	clip-path: none;
+	margin: 0;
+	padding: 0;
+  }
+  button:hover,
+  button:active:not(:focus-visible) {
+	--_s: .75;
+  }
+  button:active {
+	box-shadow: inset 0 0 0 100vmax var(--_c);
+	color: #fff;
+  }
