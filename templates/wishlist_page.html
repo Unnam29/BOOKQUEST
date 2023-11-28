@@ -41,6 +41,15 @@ header {
     margin-top: 10px;
 }
 
+a {
+	text-decoration: none;
+	color: inherit; 
+  }
+  
+  a:hover {
+	text-decoration: none;
+	color: inherit;
+  }
 </style>
 </head>
 <body>
@@ -52,36 +61,23 @@ header {
     <!-- Wishlist Items -->
     <section id="wishlist" class="container mt-5">
         <div class="row">
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <img src="image1.jpg" class="card-img-top" alt="Item 1">
-                    <div class="card-body">
-                        <h5 class="card-title">Item 1</h5>
-                        <p class="card-text">Description for Item 1.</p>
-                        <button class="btn btn-primary btn-block">Add to Cart</button>
+            {% for i in range(wishlist_products|length) %}
+            <a href="{{url_for('individualproduct_page', coverId=wishlist_products[i].cover_id)}}">
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <img src="../static/covers/{{wishlist_products[i].cover_id}}.jpg" class="card-img-top" alt="Item 1">
+                        <div class="card-body">
+                            <h5 class="card-title">{{book_names[i]}}</h5>
+                            <p class="card-text">Description for Item </p>
+                            <a href="{{url_for('add_to_cart', book_id=book_ids[i])}}"><button class="btn btn-primary btn-block">Add to Cart</button></a>
+                            <a href="{{url_for('remove_from_wishlist', cover_id=wishlist_products[i].cover_id, page='wishlist page')}}"><button class="btn btn-primary btn-block">Remove from Wishlist</button></a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <img src="image2.jpg" class="card-img-top" alt="Item 2">
-                    <div class="card-body">
-                        <h5 class="card-title">Item 2</h5>
-                        <p class="card-text">Description for Item 2.</p>
-                        <button class="btn btn-primary btn-block">Add to Cart</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <img src="image3.jpg" class="card-img-top" alt="Item 3">
-                    <div class="card-body">
-                        <h5 class="card-title">Item 3</h5>
-                        <p class="card-text">Description for Item 3.</p>
-                        <button class="btn btn-primary btn-block">Add to Cart</button>
-                    </div>
-                </div>
-            </div>
+            </a>
+            
+            {% endfor %}
+            
         </div>
     </section>
 
