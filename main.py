@@ -85,6 +85,15 @@ class Wishlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
     cover_id = db.Column(db.Integer, nullable=False)
+
+class Order(db.Model):
+    _tablename_ = 'orders'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    book_id = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(200), nullable=False)
 # class Section(db.Model):
 #     pass
 
@@ -316,6 +325,7 @@ def wishlist_page():
 
 
     return render_template('wishlist_page.html', wishlist_products=wishlist_products, book_names=book_names, book_ids=book_ids)
+
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
