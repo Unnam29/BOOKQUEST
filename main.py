@@ -345,6 +345,27 @@ def orders_page():
                            order_items=order_items,
                            order_item_names=order_item_names)
 
+@app.route('/review_submited/<cover_id>', methods=['GET', 'POST'])
+def review_submited(cover_id):
+    user_id = db.session.query(User).filter(User.email == session['user']).first().id
+    book_id = db.session.query(Book).filter(Book.coverId == cover_id).first().id
+    rating = request.form['rating']
+    review = request.form['review']
+
+    review_id = 0
+
+    if len(db.session.query(Review).all()) != 0:
+        review_id = db.session.query(Review).all()[-1].id+1
+
+    new_review = Review(id=review_id, user_id=user_id, book_id=book_id, rating=rating, review=review)
+
+    db.session.add(new_review)
+    db.session.commit()
+
+    print("rating = ", rating)
+    print("review = ", review)
+    return redirect(url_for('individualproduct_page', coverId=cover_id))
+
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
