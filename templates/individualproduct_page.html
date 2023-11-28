@@ -112,7 +112,46 @@
         <p>Author {{ book.author }} is a renowned author with several best-selling books to their name.</p>
     </section>
 
-      
+        <!-- Reviews Section -->
+        <section id="reviews" class="container mt-5">
+        
+        {% if reviews.keys()|length == 1 %}
+        <h2>{{reviews.keys()|length }} Review</h2>
+        {% else %}
+        <h2>{{reviews.keys()|length }} Reviews</h2>
+        {% endif %}
+        {% if reviews.keys()|length != 0 %}
+            {% for user_name, user_reviews in reviews.items() %}
+            <div class="review">
+                <div class="user">
+                    <strong>{{ user_name }} 
+                        {% for i in range(user_reviews[1][-1]) %}
+                        <label class="rating-display-label"><i class="fas fa-star"></i></label>
+                        {% endfor %}
+                    </strong> 
+                </div>
+                
+                {% for user_review in user_reviews[0] %}
+                <p class="review-text">
+                    {{ user_review }}
+                <!-- Display review text -->
+                </p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="review">
+            
+            <p class="review-text">
+                No reviews as of now
+            <!-- Display review text -->
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Repeat for each review -->
+
+        </section>
 
      <!-- Rating and Review Form -->
      <section id="rating-review" class="container mt-5">

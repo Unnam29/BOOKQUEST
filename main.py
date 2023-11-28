@@ -276,8 +276,24 @@ def individualproduct_page(coverId):
     current_book = db.session.query(Book).filter(Book.coverId == coverId).first()
     current_user = db.session.query(User).filter(User.email == session['user']).first()
     isFavourite = db.session.query(Wishlist).filter(Wishlist.user_id == current_user.id, Wishlist.cover_id == coverId).first() != None
+    all_reviews = db.session.query(Review).filter(Review.book_id == current_book.id).all()
+    
+    reviews = {}
 
-    return render_template("individualproduct_page.html", coverId=coverId, book=current_book, isFavourite=isFavourite)
+    for review in all_reviews:
+        
+        
+        user_name = db.session.query(User).filter(User.id == review.user_id).first().firstName + " " + db.session.query(User).filter(User.id == review.user_id).first().lastName
+        
+        try:
+            reviews[user_name][0].append(review.review)
+            reviews[user_name][1].append(review.rating)
+        except KeyError:
+            reviews[user_name] = [[review.review], [review.rating]]
+            
+
+
+    return render_template("individualproduct_page.html", coverId=coverId, book=current_book, isFavourite=isFavourite, reviews=reviews)
 
 @app.route('/notification_page', methods=['GET'])
 def notification_page():
