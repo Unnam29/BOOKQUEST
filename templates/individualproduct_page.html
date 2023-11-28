@@ -40,6 +40,37 @@
         .rating input:checked ~ label {
             color: #ffcc00;
         }
+
+        .review {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            }
+
+            .rating-display {
+            margin-bottom: 10px;
+            
+            }
+
+            .rating-display-label {
+            color: #ffcc00;  
+            }
+
+            .review-text {
+            font-style: italic;
+            }
+
+            .rating-display, .review-text {
+                margin-left: 20px;
+            }
+
+            .user {
+                margin-top: 20px;
+            }
+
+            #reviews{
+                padding-left: 40px;
+            }
     </style>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -47,7 +78,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 </head>
 <body>
-    
     <!-- Product Details Section -->
     <section id="product-details" class="container mt-5">
         <div class="row">
@@ -63,27 +93,72 @@
                 <p>Description: Descripton yet to be added</p>
 
                 <a href="{{url_for('add_to_cart', book_id=book.id)}}"><button id="addToCartBtn" class="btn btn-primary mr-2">Add to Cart</button></a>
+                
                 {% if isFavourite %}
                 <a href="{{url_for('remove_from_wishlist', cover_id=coverId, page='individual product page')}}"><button id="removeFromWishlistBtn" class="btn btn-secondary">Remove from Wishlist</button></a>
                 {% else %}
                 <a href="{{url_for('add_to_wishlist', cover_id=coverId)}}"><button id="addToWishlistBtn" class="btn btn-secondary">Add to Wishlist</button></a>
-                {% endif %}
+                {% endif %} 
             </div>
         </div>
     </section>
+
     <!-- Item Description Section -->
     <section id="item-description" class="container mt-5">
         <h3>Item Description</h3>
         <p>Description yet to be added</p>
+        <br>
         <h3>Author Details</h3>
         <p>Author {{ book.author }} is a renowned author with several best-selling books to their name.</p>
     </section>
+
+        <!-- Reviews Section -->
+        <section id="reviews" class="container mt-5">
+        
+        {% if reviews.keys()|length == 1 %}
+        <h2>{{reviews.keys()|length }} Review</h2>
+        {% else %}
+        <h2>{{reviews.keys()|length }} Reviews</h2>
+        {% endif %}
+        {% if reviews.keys()|length != 0 %}
+            {% for user_name, user_reviews in reviews.items() %}
+            <div class="review">
+                <div class="user">
+                    <strong>{{ user_name }} 
+                        {% for i in range(user_reviews[1][-1]) %}
+                        <label class="rating-display-label"><i class="fas fa-star"></i></label>
+                        {% endfor %}
+                    </strong> 
+                </div>
+                
+                {% for user_review in user_reviews[0] %}
+                <p class="review-text">
+                    {{ user_review }}
+                <!-- Display review text -->
+                </p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="review">
+            
+            <p class="review-text">
+                No reviews as of now
+            <!-- Display review text -->
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Repeat for each review -->
+
+        </section>
+
      <!-- Rating and Review Form -->
      <section id="rating-review" class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <h2>Rate and Review</h2>
-                <form id="ratingReviewForm">
+                <form id="ratingReviewForm" method="post" action="{{url_for('review_submited', cover_id=coverId)}}">
                     <div class="form-group">
                         <label for="rating">Rating:</label>
                         <div class="rating">
@@ -101,7 +176,7 @@
                     </div>
                     <div class="form-group">
                         <label for="review">Review:</label>
-                        <textarea class="form-control" id="review" rows="5" required></textarea>
+                        <textarea class="form-control" id="review" rows="5" name="review" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Submit</button>
                 </form>

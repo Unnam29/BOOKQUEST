@@ -94,6 +94,15 @@ class Order(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(200), nullable=False)
+
+class Review(db.Model):
+    _tablename_ = 'review'
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    review = db.Column(db.String(500), nullable=False)
+
 # class Section(db.Model):
 #     pass
 
@@ -267,8 +276,24 @@ def individualproduct_page(coverId):
     current_book = db.session.query(Book).filter(Book.coverId == coverId).first()
     current_user = db.session.query(User).filter(User.email == session['user']).first()
     isFavourite = db.session.query(Wishlist).filter(Wishlist.user_id == current_user.id, Wishlist.cover_id == coverId).first() != None
+    all_reviews = db.session.query(Review).filter(Review.book_id == current_book.id).all()
+    
+    reviews = {}
 
-    return render_template("individualproduct_page.html", coverId=coverId, book=current_book, isFavourite=isFavourite)
+    for review in all_reviews:
+        
+        
+        user_name = db.session.query(User).filter(User.id == review.user_id).first().firstName + " " + db.session.query(User).filter(User.id == review.user_id).first().lastName
+        
+        try:
+            reviews[user_name][0].append(review.review)
+            reviews[user_name][1].append(review.rating)
+        except KeyError:
+            reviews[user_name] = [[review.review], [review.rating]]
+            
+
+
+    return render_template("individualproduct_page.html", coverId=coverId, book=current_book, isFavourite=isFavourite, reviews=reviews)
 
 @app.route('/notification_page', methods=['GET'])
 def notification_page():
@@ -335,6 +360,27 @@ def orders_page():
     return render_template('orders_page.html', 
                            order_items=order_items,
                            order_item_names=order_item_names)
+
+@app.route('/review_submited/<cover_id>', methods=['GET', 'POST'])
+def review_submited(cover_id):
+    user_id = db.session.query(User).filter(User.email == session['user']).first().id
+    book_id = db.session.query(Book).filter(Book.coverId == cover_id).first().id
+    rating = request.form['rating']
+    review = request.form['review']
+
+    review_id = 0
+
+    if len(db.session.query(Review).all()) != 0:
+        review_id = db.session.query(Review).all()[-1].id+1
+
+    new_review = Review(id=review_id, user_id=user_id, book_id=book_id, rating=rating, review=review)
+
+    db.session.add(new_review)
+    db.session.commit()
+
+    print("rating = ", rating)
+    print("review = ", review)
+    return redirect(url_for('individualproduct_page', coverId=cover_id))
 
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
