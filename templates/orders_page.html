@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cart Page</title>
+    <title>Orders Page</title>
     <!-- Bootstrap CSS -->
     <style>
         .cart-icon {
@@ -29,14 +29,14 @@
 <body>
     <!-- Header Section -->
     <header class="bg-dark text-white text-center p-4">
-        <h1>Cart</h1>
+        <h1>Orders</h1>
     </header>
 
     <!-- Cart Items -->
     <section id="cart-items" class="container mt-5">
         <div class="row">
-            <div class="col-md-8">
-                <h2>Your Cart</h2>
+            <div class="col-md-12">
+                <h2>Your Orders</h2>
                 <table class="table">
                     <thead>
                         <tr>
@@ -44,49 +44,21 @@
                             <th>Price</th>
                             <th>Quantity</th>
                             <th>Total</th>
-                            <th></th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for i in range(cart_items|length) %}
+                        {% for i in range(order_items|length) %}
                         <tr>
-                            <td>{{cart_item_names[i]}}</td>
-                            <td>{{cart_items[i].price}}</td>
-                            <td>
-                                <input type="number" class="form-control" id='{{cart_items[i].id}}' value="{{cart_items[i].quantity}}" min="1">
-                            </td>
-                            <td>{{cart_items[i].total_price}}</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm remove-item">Remove</button>
-                            </td>
+                            <td>{{order_item_names[i]}}</td>
+                            <td>{{order_items[i].price}}</td>
+                            <td>{{order_items[i].quantity}}</td>
+                            <td>{{order_items[i].price}}</td>
+                            <td>{{order_items[i].status}}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
-            <div class="col-md-4">
-                <h2>Order Summary</h2>
-                <table class="table">
-                    <tbody>
-                        <tr>
-                            <td>Subtotal:</td>
-                            <td>${{subtotal}}</td>
-                        </tr>
-                        <tr>
-                            <td>Tax:</td>
-                            <td>${{tax}}</td>
-                        </tr>
-                        <tr>
-                            <td>Total:</td>
-                            <td>${{total}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                {% if cart_items|length != 0 %}
-                <a href="{{url_for('billing_page')}}"><button class="btn btn-primary w-100">Checkout</button></a>
-                {% else %}
-                <a href=""><button class="btn btn-primary w-100">Checkout</button></a>
-                {% endif %}
             </div>
         </div>
     </section>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session
+from flask import Flask, render_template, redirect, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 from dotenv import load_dotenv
@@ -80,6 +80,20 @@ class CartItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     
+class Wishlist(db.Model):
+    _tablename_ = 'wishlist'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    cover_id = db.Column(db.Integer, nullable=False)
+
+class Order(db.Model):
+    _tablename_ = 'orders'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    book_id = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(200), nullable=False)
 # class Section(db.Model):
 #     pass
 
@@ -251,7 +265,10 @@ def update_home_page():
 def individualproduct_page(coverId):
 
     current_book = db.session.query(Book).filter(Book.coverId == coverId).first()
-    return render_template("individualproduct_page.html", coverId=coverId, book=current_book)
+    current_user = db.session.query(User).filter(User.email == session['user']).first()
+    isFavourite = db.session.query(Wishlist).filter(Wishlist.user_id == current_user.id, Wishlist.cover_id == coverId).first() != None
+
+    return render_template("individualproduct_page.html", coverId=coverId, book=current_book, isFavourite=isFavourite)
 
 @app.route('/notification_page', methods=['GET'])
 def notification_page():
@@ -290,6 +307,35 @@ def cart_page():
 @app.route('/billing_page', methods=["GET"])
 def billing_page():
     return render_template('billing_page.html')
+
+@app.route('/wishlist_page', methods=['GET'])
+def wishlist_page():
+
+    user_id = db.session.query(User).filter(User.email == session['user']).first().id
+
+    wishlist_products = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).all()
+
+    book_names = []
+    book_ids = []
+
+    for wishlist_product in wishlist_products:
+        book = db.session.query(Book).filter(Book.coverId == wishlist_product.cover_id).first()
+        book_names.append(book.bookName)
+        book_ids.append(book.id)
+
+
+    return render_template('wishlist_page.html', wishlist_products=wishlist_products, book_names=book_names, book_ids=book_ids)
+
+@app.route('/orders_page', methods=['GET'])
+def orders_page():
+    order_items = db.session.query(Order).filter(Order.user_id == db.session.query(User).filter(User.email==session['user']).first().id).all()[::-1]
+
+    order_item_names = [db.session.query(Book).filter(Book.id == order_item.book_id).first().bookName for order_item in order_items]
+
+    return render_template('orders_page.html', 
+                           order_items=order_items,
+                           order_item_names=order_item_names)
+
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
@@ -534,8 +580,61 @@ def make_payment():
     books_in_cart = db.session.query(CartItem).filter(CartItem.user_id == user_id)
     if request.form.get("cvv") == '':
         print("orderplaced")
+        sendNotification("Your Order is placed")
+        for book_in_cart in books_in_cart:
+            order_id = 0
+
+            if len(db.session.query(Order).all()) != 0:
+                order_id = db.session.query(Order).all()[-1].id+1
+
+            new_order = Order(id=order_id,
+                              user_id=book_in_cart.user_id,
+                              book_id=book_in_cart.book_id,
+                              quantity=book_in_cart.quantity,
+                              price=book_in_cart.total_price,
+                              status="order being packed")
+            
+            sendNotification(f"{db.session.query(Book).filter(Book.id==book_in_cart.book_id).all()[0].bookName} : {new_order.status}")
+            db.session.add(new_order)
+            db.session.delete(book_in_cart)
+            db.session.commit()
+
 
     return redirect('/home_page')
+
+@app.route('/add_to_wishlist/<cover_id>')
+def add_to_wishlist(cover_id):
+    wishlist_id = 0
+
+    if len(db.session.query(Wishlist).all()) != 0:
+        wishlist_id = db.session.query(Wishlist).all()[-1].id+1
+
+
+    print("new whish list id = ", wishlist_id)
+
+    current_user = db.session.query(User).filter(User.email == session['user']).first()
+
+    new_wishlist_product = Wishlist(id=wishlist_id, user_id=current_user.id, cover_id=cover_id)
+    
+    db.session.add(new_wishlist_product)
+    db.session.commit()
+
+    return redirect(url_for('individualproduct_page', coverId=cover_id))
+
+@app.route('/remove_from_wishlist/<cover_id>/<page>')
+def remove_from_wishlist(cover_id, page):
+
+    current_user = db.session.query(User).filter(User.email == session['user']).first()
+
+    product_in_wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == current_user.id, Wishlist.cover_id == cover_id).first()
+    
+    db.session.delete(product_in_wishlist)
+    db.session.commit()
+
+    if page == "individual product page":
+        return redirect(url_for('individualproduct_page', coverId=cover_id))
+    else:
+        return redirect("/wishlist_page")
 ################################## helper functions #################################
 # used to send verification mail to user
 def send_notification(userEmail):
