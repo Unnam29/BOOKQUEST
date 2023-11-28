@@ -63,7 +63,11 @@
                 <p>Description: Descripton yet to be added</p>
 
                 <a href="{{url_for('add_to_cart', book_id=book.id)}}"><button id="addToCartBtn" class="btn btn-primary mr-2">Add to Cart</button></a>
-                <button id="addToWishlistBtn" class="btn btn-secondary">Add to Wishlist</button>
+                {% if isFavourite %}
+                <a href="{{url_for('remove_from_wishlist', cover_id=coverId, page='individual product page')}}"><button id="removeFromWishlistBtn" class="btn btn-secondary">Remove from Wishlist</button></a>
+                {% else %}
+                <a href="{{url_for('add_to_wishlist', cover_id=coverId)}}"><button id="addToWishlistBtn" class="btn btn-secondary">Add to Wishlist</button></a>
+                {% endif %}
             </div>
         </div>
     </section>

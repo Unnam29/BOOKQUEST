@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session
+from flask import Flask, render_template, redirect, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 from dotenv import load_dotenv
@@ -256,7 +256,10 @@ def update_home_page():
 def individualproduct_page(coverId):
 
     current_book = db.session.query(Book).filter(Book.coverId == coverId).first()
-    return render_template("individualproduct_page.html", coverId=coverId, book=current_book)
+    current_user = db.session.query(User).filter(User.email == session['user']).first()
+    isFavourite = db.session.query(Wishlist).filter(Wishlist.user_id == current_user.id, Wishlist.cover_id == coverId).first() != None
+
+    return render_template("individualproduct_page.html", coverId=coverId, book=current_book, isFavourite=isFavourite)
 
 @app.route('/notification_page', methods=['GET'])
 def notification_page():
@@ -559,6 +562,40 @@ def make_payment():
         print("orderplaced")
 
     return redirect('/home_page')
+
+@app.route('/add_to_wishlist/<cover_id>')
+def add_to_wishlist(cover_id):
+    wishlist_id = 0
+
+    if len(db.session.query(Wishlist).all()) != 0:
+        wishlist_id = db.session.query(Wishlist).all()[-1].id+1
+
+
+    print("new whish list id = ", wishlist_id)
+
+    current_user = db.session.query(User).filter(User.email == session['user']).first()
+
+    new_wishlist_product = Wishlist(id=wishlist_id, user_id=current_user.id, cover_id=cover_id)
+    
+    db.session.add(new_wishlist_product)
+    db.session.commit()
+
+    return redirect(url_for('individualproduct_page', coverId=cover_id))
+
+@app.route('/remove_from_wishlist/<cover_id>/<page>')
+def remove_from_wishlist(cover_id, page):
+
+    current_user = db.session.query(User).filter(User.email == session['user']).first()
+
+    product_in_wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == current_user.id, Wishlist.cover_id == cover_id).first()
+    
+    db.session.delete(product_in_wishlist)
+    db.session.commit()
+
+    if page == "individual product page":
+        return redirect(url_for('individualproduct_page', coverId=cover_id))
+    else:
+        return redirect("/wishlist_page")
 ################################## helper functions #################################
 # used to send verification mail to user
 def send_notification(userEmail):
