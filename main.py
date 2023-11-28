@@ -94,6 +94,15 @@ class Order(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(200), nullable=False)
+
+class Review(db.Model):
+    _tablename_ = 'review'
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    review = db.Column(db.String(500), nullable=False)
+
 # class Section(db.Model):
 #     pass
 
