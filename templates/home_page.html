@@ -23,6 +23,16 @@
                 
 				<li><a href="{{url_for('settings_page')}}">Settings</a></li>
 			</ul>
+
+			<div class="nav-search">
+				<form class="search-form" method='post' action="{{url_for('search_clicked')}}">
+				  <input type="text" placeholder="Search" name="search">
+				  <button type="submit">
+					ok
+				  </button>
+				</form>
+			</div>
+
 			<!-- <a href="#subscription">Subscribe</a> -->
 			<div class="options">
 

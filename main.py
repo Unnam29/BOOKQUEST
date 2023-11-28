@@ -9,8 +9,8 @@ import random
 from datetime import datetime
 import requests
 import json
-from constants import Sections, PopularBooks, PopularCoverIdxs, ITEMS_IN_PAGE
-from meta import popular_page, explore_page, recommendation_page
+from constants import Sections, PopularBooks, PopularCoverIdxs, ITEMS_IN_PAGE, ITEMS_IN_SEARCH_PAGE
+from meta import popular_page, explore_page, recommendation_page, search_page_number
 import copy
 ######################## contants #############################
 SECTIONS = Sections()
@@ -527,8 +527,8 @@ def logout():
 
 @app.route('/nextPageClicked/<section>', methods=['GET', 'POST'])
 def nextPageClicked(section):
-    global explore_page, recommendation_page, popular_page
-    print("nextPage cliecked")
+    global explore_page, recommendation_page, popular_page, search_page_number
+    print("nextPage cliecked\nsection = ", section)
 
     if section == SECTIONS.POPULARP_PRODUCTS:
         if popular_page != 1:
@@ -544,12 +544,22 @@ def nextPageClicked(section):
 
         if recommendation_page <  recommendation_page_count:
             recommendation_page += 1
+    elif section.split('-')[0] == 'search':
+        search_query = section.split('-')[1]
+
+        print("search query = ", search_query)
+        searchBy = {"book": {'q': search_query}}
+        book_names, cover_ids, published_years, authors, edition_counts = search(searchBy=searchBy)
+        if len(book_names) > search_page_number * ITEMS_IN_SEARCH_PAGE:
+            search_page_number += 1
+
+        return redirect(url_for('search_clicked', search=search_query))
 
     return redirect('/home_page')
 
 @app.route('/prevPageClicked/<section>', methods=['GET', 'POST'])
 def prevPageClicked(section):
-    global explore_page, recommendation_page, popular_page
+    global explore_page, recommendation_page, popular_page, search_page_number
     print("prevPage cliecked")
 
     if section == SECTIONS.POPULARP_PRODUCTS:
@@ -564,9 +574,14 @@ def prevPageClicked(section):
     elif section == SECTIONS.RECOMMENDATIOS:
         if recommendation_page - 1 != 0:
             recommendation_page -= 1
+    elif section.split('-')[0] == 'search':
+        search_query = section.split('-')[1]
+        if search_page_number != 1:
+            search_page_number -= 1
+
+        return redirect(url_for('search_clicked', search=search_query))
 
     return redirect('/home_page')
-
 @app.route('/sectionClicked/<section>', methods=['GET', 'POST'])
 def sectionClicked(section):
 
@@ -681,6 +696,37 @@ def remove_from_wishlist(cover_id, page):
         return redirect(url_for('individualproduct_page', coverId=cover_id))
     else:
         return redirect("/wishlist_page")
+
+@app.route('/search_clicked', methods=['GET', 'POST'])
+def search_clicked():
+    global saved_covers, search_page_number
+
+    update_saved_covers()
+    search_term = request.form.get('search')
+    print("search term in search clicked = ", search_term)
+    if search_term == None:
+        search_term = request.args.get('search')
+
+    book_names, cover_ids, published_years, authors, edition_counts = search(searchBy={"book": {'q': search_term}})
+
+    print("len(book_names) = ", len(book_names))
+
+    unsaved_covers = []
+    book_names = book_names[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
+    cover_ids = cover_ids[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
+    authors = authors[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
+
+    print("len(book_names) = ", len(book_names))
+
+    for cover_id in cover_ids:
+        if cover_id not in saved_covers:
+            unsaved_covers.append(cover_id)
+
+    if len(unsaved_covers) != 0:
+        for unsaved_cover in unsaved_covers:
+            fetchCovers(unsaved_cover)
+
+    return render_template('search_page.html', book_names=book_names, cover_ids=cover_ids, authors=authors, search_term=search_term)
 ################################## helper functions #################################
 # used to send verification mail to user
 def send_notification(userEmail):
