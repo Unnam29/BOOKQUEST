@@ -80,6 +80,11 @@ class CartItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     
+class Wishlist(db.Model):
+    _tablename_ = 'wishlist'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    cover_id = db.Column(db.Integer, nullable=False)
 # class Section(db.Model):
 #     pass
 
@@ -290,6 +295,24 @@ def cart_page():
 @app.route('/billing_page', methods=["GET"])
 def billing_page():
     return render_template('billing_page.html')
+
+@app.route('/wishlist_page', methods=['GET'])
+def wishlist_page():
+
+    user_id = db.session.query(User).filter(User.email == session['user']).first().id
+
+    wishlist_products = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).all()
+
+    book_names = []
+    book_ids = []
+
+    for wishlist_product in wishlist_products:
+        book = db.session.query(Book).filter(Book.coverId == wishlist_product.cover_id).first()
+        book_names.append(book.bookName)
+        book_ids.append(book.id)
+
+
+    return render_template('wishlist_page.html', wishlist_products=wishlist_products, book_names=book_names, book_ids=book_ids)
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
