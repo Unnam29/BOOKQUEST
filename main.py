@@ -9,8 +9,8 @@ import random
 from datetime import datetime
 import requests
 import json
-from constants import Sections, PopularBooks, PopularCoverIdxs, ITEMS_IN_PAGE
-from meta import popular_page, explore_page, recommendation_page
+from constants import Sections, PopularBooks, PopularCoverIdxs, ITEMS_IN_PAGE, ITEMS_IN_SEARCH_PAGE
+from meta import popular_page, explore_page, recommendation_page, search_page_number
 import copy
 ######################## contants #############################
 SECTIONS = Sections()
@@ -681,6 +681,33 @@ def remove_from_wishlist(cover_id, page):
         return redirect(url_for('individualproduct_page', coverId=cover_id))
     else:
         return redirect("/wishlist_page")
+
+@app.route('/search_clicked', methods=['GET', 'POST'])
+def search_clicked():
+    global saved_covers, search_page_number
+
+    update_saved_covers()
+    search_term = request.form.get('search')
+    print("search term in search clicked = ", search_term)
+    if search_term == None:
+        search_term = request.args.get('search')
+
+    book_names, cover_ids, published_years, authors, edition_counts = search(searchBy={"book": {'q': search_term}})
+
+    unsaved_covers = []
+    book_names = book_names[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
+    cover_ids = cover_ids[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
+    authors = authors[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
+
+    for cover_id in cover_ids:
+        if cover_id not in saved_covers:
+            unsaved_covers.append(cover_id)
+
+    if len(unsaved_covers) != 0:
+        for unsaved_cover in unsaved_covers:
+            fetchCovers(unsaved_cover)
+
+    return render_template('search_page.html', book_names=book_names, cover_ids=cover_ids, authors=authors, search_term=search_term)
 ################################## helper functions #################################
 # used to send verification mail to user
 def send_notification(userEmail):
