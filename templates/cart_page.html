@@ -82,7 +82,11 @@
                         </tr>
                     </tbody>
                 </table>
+                {% if cart_items|length != 0 %}
                 <a href="{{url_for('billing_page')}}"><button class="btn btn-primary w-100">Checkout</button></a>
+                {% else %}
+                <a href=""><button class="btn btn-primary w-100">Checkout</button></a>
+                {% endif %}
             </div>
         </div>
     </section>
