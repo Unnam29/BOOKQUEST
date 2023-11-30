@@ -79,15 +79,9 @@ class CartItem(db.Model):
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
-    
-class Wishlist(db.Model):
-    _tablename_ = 'wishlist'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    cover_id = db.Column(db.Integer, nullable=False)
 
 class Order(db.Model):
-    _tablename_ = 'orders'
+    __tablename__ = 'orders'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
     book_id = db.Column(db.Integer, nullable=False)
@@ -95,14 +89,19 @@ class Order(db.Model):
     price = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(200), nullable=False)
 
+class Wishlist(db.Model):
+    __tablename__ = 'wishlist'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    cover_id = db.Column(db.Integer, nullable=False)
+
 class Review(db.Model):
-    _tablename_ = 'review'
+    __tablename__ = 'review'
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     review = db.Column(db.String(500), nullable=False)
-
 # class Section(db.Model):
 #     pass
 
@@ -333,6 +332,16 @@ def cart_page():
 def billing_page():
     return render_template('billing_page.html')
 
+@app.route('/orders_page', methods=['GET'])
+def orders_page():
+    order_items = db.session.query(Order).filter(Order.user_id == db.session.query(User).filter(User.email==session['user']).first().id).all()[::-1]
+
+    order_item_names = [db.session.query(Book).filter(Book.id == order_item.book_id).first().bookName for order_item in order_items]
+
+    return render_template('orders_page.html', 
+                           order_items=order_items,
+                           order_item_names=order_item_names)
+
 @app.route('/wishlist_page', methods=['GET'])
 def wishlist_page():
 
@@ -351,37 +360,9 @@ def wishlist_page():
 
     return render_template('wishlist_page.html', wishlist_products=wishlist_products, book_names=book_names, book_ids=book_ids)
 
-@app.route('/orders_page', methods=['GET'])
-def orders_page():
-    order_items = db.session.query(Order).filter(Order.user_id == db.session.query(User).filter(User.email==session['user']).first().id).all()[::-1]
-
-    order_item_names = [db.session.query(Book).filter(Book.id == order_item.book_id).first().bookName for order_item in order_items]
-
-    return render_template('orders_page.html', 
-                           order_items=order_items,
-                           order_item_names=order_item_names)
-
-@app.route('/review_submited/<cover_id>', methods=['GET', 'POST'])
-def review_submited(cover_id):
-    user_id = db.session.query(User).filter(User.email == session['user']).first().id
-    book_id = db.session.query(Book).filter(Book.coverId == cover_id).first().id
-    rating = request.form['rating']
-    review = request.form['review']
-
-    review_id = 0
-
-    if len(db.session.query(Review).all()) != 0:
-        review_id = db.session.query(Review).all()[-1].id+1
-
-    new_review = Review(id=review_id, user_id=user_id, book_id=book_id, rating=rating, review=review)
-
-    db.session.add(new_review)
-    db.session.commit()
-
-    print("rating = ", rating)
-    print("review = ", review)
-    return redirect(url_for('individualproduct_page', coverId=cover_id))
-
+@app.route('/search_page', methods=['GET'])
+def search_page():
+    return render_template('search_page.html')
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
@@ -404,7 +385,11 @@ def register():
     else: # adding user to data base 
         # otp = send_notification(email)
         otp = "0000"
-        newUser = User(id=len(User.query.all())+1,
+        user_id = 0
+        if len(User.query.all()) != 0:
+            user_id = User.query.all()[-1].id+1
+
+        newUser = User(id=user_id,
                    firstName=firstName,
                    lastName=lastName,
                    email=email,
@@ -582,6 +567,7 @@ def prevPageClicked(section):
         return redirect(url_for('search_clicked', search=search_query))
 
     return redirect('/home_page')
+
 @app.route('/sectionClicked/<section>', methods=['GET', 'POST'])
 def sectionClicked(section):
 
@@ -602,7 +588,12 @@ def add_to_cart(book_id):
 
         db.session.commit()
     else: # else create a new cart item
-        new_cart_item = CartItem(id=db.session.query(CartItem).all()[-1].id+1,
+        cart_item_id = 0
+
+        if len(db.session.query(CartItem).all()) != 0:
+            cart_item_id = db.session.query(CartItem).all()[-1].id+1
+
+        new_cart_item = CartItem(id=cart_item_id,
                                 book_id=book_id,
                                 user_id=user_id,
                                 price=30.0,
@@ -709,14 +700,10 @@ def search_clicked():
 
     book_names, cover_ids, published_years, authors, edition_counts = search(searchBy={"book": {'q': search_term}})
 
-    print("len(book_names) = ", len(book_names))
-
     unsaved_covers = []
     book_names = book_names[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
     cover_ids = cover_ids[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
     authors = authors[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
-
-    print("len(book_names) = ", len(book_names))
 
     for cover_id in cover_ids:
         if cover_id not in saved_covers:
@@ -727,6 +714,27 @@ def search_clicked():
             fetchCovers(unsaved_cover)
 
     return render_template('search_page.html', book_names=book_names, cover_ids=cover_ids, authors=authors, search_term=search_term)
+
+@app.route('/review_submited/<cover_id>', methods=['GET', 'POST'])
+def review_submited(cover_id):
+    user_id = db.session.query(User).filter(User.email == session['user']).first().id
+    book_id = db.session.query(Book).filter(Book.coverId == cover_id).first().id
+    rating = request.form['rating']
+    review = request.form['review']
+
+    review_id = 0
+
+    if len(db.session.query(Review).all()) != 0:
+        review_id = db.session.query(Review).all()[-1].id+1
+
+    new_review = Review(id=review_id, user_id=user_id, book_id=book_id, rating=rating, review=review)
+
+    db.session.add(new_review)
+    db.session.commit()
+
+    print("rating = ", rating)
+    print("review = ", review)
+    return redirect(url_for('individualproduct_page', coverId=cover_id))
 ################################## helper functions #################################
 # used to send verification mail to user
 def send_notification(userEmail):
@@ -755,8 +763,6 @@ def search(searchBy):
     searchItem = Search.query.filter_by(searchTerm=searchTerm).first()
     print("searchItem = ", searchItem)
     if searchItem != None:
-        print("ENTERED IF\n\n")
-        print("search Id = ", searchItem.id)
         bookResults = [db.session.query(Book).filter(Book.id == book_search_item.book_id).first() for book_search_item in db.session.query(book_search).filter(book_search.search_id == searchItem.id).all()]
 
         # print("search ids = ", [book_search_item.id for book_search_item in db.session.query(book_search).filter(book_search.search_id == searchItem.id).all()])
@@ -768,7 +774,7 @@ def search(searchBy):
 
         return book_names, cover_ids, published_years, authors, edition_counts
 
-    print("NOT ENTERED IF \n\n\n")
+
 
     ##### else return new search result and save it in db
 
@@ -791,8 +797,6 @@ def search(searchBy):
     # Parse the JSON response.
     books = json.loads(response.content)['docs']
 
-    print(response.text)
-    print("books = ", len(books))
     # Get a list of book names.
     book_names = []
     cover_ids = []
@@ -930,14 +934,15 @@ def update_saved_covers():
 
 def sendNotification(msg):
     userEmail = None
-    if 'user' in set(session.keys()):
-        userEmail = session['user']
-    else:
+    print("keys = ", session.keys())
+    if 'temp_user' in set(session.keys()):
         userEmail = session['temp_user']
+    else:
+        userEmail = session['user']
         
     newNotification = Notification(
         id=len(Notification.query.all())+1, 
-        user=session['user'], 
+        user=userEmail, 
         text=msg,
         isRead=False)
     
