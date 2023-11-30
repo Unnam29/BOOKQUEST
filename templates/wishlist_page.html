@@ -50,16 +50,22 @@ a {
 	text-decoration: none;
 	color: inherit;
   }
+
+  hr {
+  border-top: 1px solid #ccc;  
+  margin-top: 10px;
+  margin-bottom: 50px;
+}
 </style>
 </head>
 <body>
     <!-- Header Section -->
-    <header class="bg-dark text-white text-center p-4">
-        My Wishlist
-    </header>
+    {% include "header.html" %}
 
     <!-- Wishlist Items -->
     <section id="wishlist" class="container mt-5">
+        <h2>Your Wishlist</h2>
+        <hr>
         <div class="row">
             {% for i in range(wishlist_products|length) %}
             <a href="{{url_for('individualproduct_page', coverId=wishlist_products[i].cover_id)}}">
