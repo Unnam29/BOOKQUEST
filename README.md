@@ -27,4 +27,4 @@
 - assign atleast one reviewer 
 
 
-test
+docker test 1
