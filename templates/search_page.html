@@ -10,16 +10,7 @@
 </head>
 <body>
     <!-- Header Section -->
-    <header class="bg-dark text-white text-center p-4">
-        <div class="nav-search">
-            <form class="search-form" method='post' action="{{url_for('search_clicked')}}">
-              <input type="text" placeholder="Search" name="search">
-              <button type="submit">
-                ok
-              </button>
-            </form> 
-        </div>
-    </header>
+    {% include "header.html" %}
 
     <!-- Products Section -->
     <section id="products" class="container mt-5">
