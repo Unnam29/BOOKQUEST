@@ -1,0 +1,68 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<style>
+    body {
+    font-family: Arial, sans-serif;
+}
+
+header {
+    font-weight: bold;
+}
+
+#profile img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+}
+
+#skills ul {
+    list-style-type: none;
+    padding: 0;
+}
+</style>
+<body>
+    <!-- Header -->
+    <header class="bg-dark text-white text-center p-4">
+        <h1>Welcome to Your Profile</h1>
+    </header>
+
+    <!-- Profile Section -->
+    <section id="profile" class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <img src="profile-picture.jpg" alt="Profile Picture" class="img-fluid rounded-circle">
+            </div>
+            <div class="col-md-8">
+                <h2>John Doe</h2>
+                <p>Email: johndoe@example.com</p>
+                <p>Phone: 123-456-7890</p>
+                <p>Location: New York, USA</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="container mt-5">
+        <h2>Skills</h2>
+        <ul>
+            <li>HTML</li>
+            <li>CSS</li>
+            <li>JavaScript</li>
+            <li>Bootstrap</li>
+            <li>jQuery</li>
+        </ul>
+    </section>
+
+    <!-- Bootstrap & jQuery JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
