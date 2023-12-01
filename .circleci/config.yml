@@ -31,10 +31,7 @@ jobs:
           command: docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD
       - run:
           name: build docker image
-          command: docker build -t $DOCKERHUB_USERNAME/book_quest .   
-      - run:
-          name: run docker image 
-          command: docker run $DOCKERHUB_USERNAME/book_quest:latest 
+          command: docker build -t $DOCKERHUB_USERNAME/book_quest . 
       - run:
           name: Push Docker Image to Docker Hub
           command: docker push $DOCKERHUB_USERNAME/book_quest:latest
