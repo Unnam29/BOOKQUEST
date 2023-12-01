@@ -292,7 +292,8 @@ def individualproduct_page(coverId):
             
 
 
-    return render_template("individualproduct_page.html", coverId=coverId, book=current_book, isFavourite=isFavourite, reviews=reviews)
+    return render_template("individualproduct_page.html", coverId=coverId, book=current_book, isFavourite=isFavourite, reviews=reviews, cart_items_count=getCartItemsCount(),
+                              notification_count=getUnreadNotificationCount())
 
 @app.route('/notification_page', methods=['GET'])
 def notification_page():
@@ -306,7 +307,8 @@ def notification_page():
     
     db.session.commit()
 
-    return render_template("notifications_page.html", notifications=current_notifications[::-1])
+    return render_template("notifications_page.html", notifications=current_notifications[::-1], cart_items_count=getCartItemsCount(),
+                              notification_count=getUnreadNotificationCount())
 
 @app.route('/settings_page', methods=['GET'])
 def settings_page():
@@ -326,11 +328,13 @@ def cart_page():
                            cart_item_names=cart_item_names,
                            subtotal=subtotal,
                            tax=tax,
-                           total=total)
+                           total=total, cart_items_count=getCartItemsCount(),
+                              notification_count=getUnreadNotificationCount())
 
 @app.route('/billing_page', methods=["GET"])
 def billing_page():
-    return render_template('billing_page.html')
+    return render_template('billing_page.html', cart_items_count=getCartItemsCount(),
+                              notification_count=getUnreadNotificationCount())
 
 @app.route('/orders_page', methods=['GET'])
 def orders_page():
@@ -340,7 +344,8 @@ def orders_page():
 
     return render_template('orders_page.html', 
                            order_items=order_items,
-                           order_item_names=order_item_names)
+                           order_item_names=order_item_names, cart_items_count=getCartItemsCount(),
+                              notification_count=getUnreadNotificationCount())
 
 @app.route('/wishlist_page', methods=['GET'])
 def wishlist_page():
@@ -358,11 +363,13 @@ def wishlist_page():
         book_ids.append(book.id)
 
 
-    return render_template('wishlist_page.html', wishlist_products=wishlist_products, book_names=book_names, book_ids=book_ids)
+    return render_template('wishlist_page.html', wishlist_products=wishlist_products, book_names=book_names, book_ids=book_ids, cart_items_count=getCartItemsCount(),
+                              notification_count=getUnreadNotificationCount())
 
 @app.route('/search_page', methods=['GET'])
 def search_page():
-    return render_template('search_page.html')
+    return render_template('search_page.html', cart_items_count=getCartItemsCount(),
+                              notification_count=getUnreadNotificationCount())
 ############################# functionality ##########################################
 # register route takes care of user data after register button is clicked
 @app.route('/register', methods=['GET', 'POST'])
@@ -713,7 +720,8 @@ def search_clicked():
         for unsaved_cover in unsaved_covers:
             fetchCovers(unsaved_cover)
 
-    return render_template('search_page.html', book_names=book_names, cover_ids=cover_ids, authors=authors, search_term=search_term)
+    return render_template('search_page.html', book_names=book_names, cover_ids=cover_ids, authors=authors, search_term=search_term, cart_items_count=getCartItemsCount(),
+                              notification_count=getUnreadNotificationCount())
 
 @app.route('/review_submited/<cover_id>', methods=['GET', 'POST'])
 def review_submited(cover_id):
