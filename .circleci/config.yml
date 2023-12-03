@@ -9,6 +9,8 @@ jobs:
     executor: python/default
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 19.03.13
       - run: echo "hello world"
       - run:
           name: install virtualenv
@@ -24,6 +26,15 @@ jobs:
       - run:
           name: Run tests for Backend
           command: python -m pytest
+      - run:
+          name: Authenticate with Docker Hub
+          command: docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD
+      - run:
+          name: build docker image
+          command: docker build -t $DOCKERHUB_USERNAME/book_quest . 
+      - run:
+          name: Push Docker Image to Docker Hub
+          command: docker push $DOCKERHUB_USERNAME/book_quest:latest
       - persist_to_workspace:
           root: ~/project
           paths:
