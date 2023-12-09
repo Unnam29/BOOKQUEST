@@ -349,6 +349,7 @@ def register():
     error = ""
     if password != confirmPassword: # checking if password and confirm password matches
         error = "password dosen't match"
+        
     elif userWithEmail != None: # checkign if users mail is unique or not
         error = "User with this email already exist"
     else: # adding user to data base 

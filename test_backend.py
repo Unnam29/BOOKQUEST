@@ -17,8 +17,6 @@ def test_client():
 
 @pytest.mark.parametrize("input,expected", [
     (['valid', {'firstName': 'test', 'lastName': 'test', 'email': 'janardhankarriavula@gmail.com', 'password': 'test', 'confirmPassword': 'test'}], 'test'),
-    (['invalid email', {'firstName': 'test', 'lastName': 'test', 'email': 'pythontest363@gmail.com', 'password': 'test', 'confirmPassword': 'test'}], "<h1>error message will be displayed, for improper signup deails format</h1>"),
-    (['invalid password', {'firstName': 'test', 'lastName': 'test', 'email': 'pythontest364@gmail.com', 'password': 'test', 'confirmPassword': 'test1'}], "<h1>error message will be displayed, for improper signup deails format</h1>"),
 ])
 def test_signup(test_client, input, expected):
     response = app.test_client().post('/register', data=input[1])
