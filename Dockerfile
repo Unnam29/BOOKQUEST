@@ -1,5 +1,4 @@
-# Use the official Python image from Docker Hub as the base image
-FROM python:3.8
+FROM python:3.10.11
 # Set working directory
 WORKDIR /app
 # Copy
