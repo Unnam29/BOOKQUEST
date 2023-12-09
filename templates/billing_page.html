@@ -55,6 +55,9 @@
                         <label for="phoneNumber">Phone Number:</label>
                         <input type="text" class="form-control" id="creditCard" name="phoneNumber" placeholder="(390)-312-994" maxlength="10" required>
                     </div>
+                    {% if error != "" %}
+                        <label style="color: rgb(26, 196, 26); font-size: 20px;">{{error}}</label>
+                    {% endif %}
                     <div class="row justify-content-center form-group">
                         <div class="col-md-6">
                             <label>Select Your Payment Type</label>

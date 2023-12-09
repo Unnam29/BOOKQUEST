@@ -1,3 +1,4 @@
+# stoes all the constants used in out website
 class Sections:
     def __init__(self):
         
@@ -20,5 +21,7 @@ class Sections:
 
 ITEMS_IN_PAGE = 20
 ITEMS_IN_SEARCH_PAGE = 12
+
+# popular books are hard coded by the admins 
 PopularBooks = ["The Fountainhead", "Principles of software development",  "The 3 Mistakes of My Life", "12 rules for life", "12 more rules for life", "Atlas shrugged", "Rich dad poor dad", "gulliver's travells", 'merchant of the venice', 'macbeth']
 PopularCoverIdxs = [1, 4, 1, 1, 0, 0, 0, 1, 0, 0, 0]

@@ -1,4 +1,5 @@
-from flask import Flask, render_template, redirect, request, session, url_for
+###################### imports ######################  
+from flask import Flask, render_template, redirect, request, session, url_for, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 from dotenv import load_dotenv
@@ -14,7 +15,7 @@ from meta import popular_page, explore_page, recommendation_page, search_page_nu
 import copy
 ######################## contants #############################
 SECTIONS = Sections()
-saved_covers = []
+saved_covers = [] # coverids of cached books are stored
 
 ######################## configuring flask app #############################
 app = Flask(__name__)
@@ -43,7 +44,7 @@ class book_search(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
     search_id = db.Column(db.Integer, db.ForeignKey('search.id'), nullable=False)
 
-# Search DB
+# Search DB 
 class Search(db.Model):
     _tablename_ = 'search'
     id = db.Column(db.Integer, primary_key=True)
@@ -62,7 +63,7 @@ class Book(db.Model):
     searches = db.relationship('Search', secondary=book_search._tablename_, lazy='subquery',
         backref=db.backref('books', lazy=True))
 
-# Notification DB
+# Notification DB to store notification and associated user ids
 class Notification(db.Model):
     _tablename_ = 'notification'
     id = db.Column(db.Integer, primary_key=True)
@@ -70,7 +71,7 @@ class Notification(db.Model):
     text = db.Column(db.String(500), nullable=False)
     isRead = db.Column(db.Boolean(), default=False)
 
-# cart-items db
+# cart-items db to store book ids and associated user ids
 class CartItem(db.Model):
     __tablename__ = 'cartitems'
     id = db.Column(db.Integer, primary_key=True)
@@ -80,6 +81,7 @@ class CartItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
 
+# orders db to store user order using book_ids and user_ids
 class Order(db.Model):
     __tablename__ = 'orders'
     id = db.Column(db.Integer, primary_key=True)
@@ -89,12 +91,14 @@ class Order(db.Model):
     price = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(200), nullable=False)
 
+# whish list db to stores users whishlist items using book_ids and user_ids
 class Wishlist(db.Model):
     __tablename__ = 'wishlist'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
     cover_id = db.Column(db.Integer, nullable=False)
 
+# review db to stores user reviews to books using user id and book id
 class Review(db.Model):
     __tablename__ = 'review'
     id = db.Column(db.Integer, primary_key=True)
@@ -102,8 +106,6 @@ class Review(db.Model):
     user_id = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     review = db.Column(db.String(500), nullable=False)
-# class Section(db.Model):
-#     pass
 
 with app.app_context():
     db.create_all()
@@ -115,13 +117,7 @@ with app.app_context():
 def home():
 
     update_saved_covers()
-    print(session.keys())
-    if "temp_user" in set(session.keys()):
-        print("temp user exist")
-    else:
-        print("temp user dosen't exist")
 
-    # print("session['temp_user'] = ", session['temp_user'])
     return render_template('login_page.html')
 
 # login_page route opens login page
@@ -137,7 +133,8 @@ def signup_page():
 # verification_page route opens verification page
 @app.route('/verifcation_page')
 def verification_page():
-    session['forgot verify'] = True
+    # route is acessed on when user clicks forgot password to verify user identity
+    session['forgot verify'] = True # forgot verify session variable is set to true
     return render_template('verification_page.html', state='forgot verify')
 
 # forgot_password_page open forgot password page
@@ -149,8 +146,7 @@ def forgot_password_page():
 def home_page():
     global saved_covers 
 
-    search({"book": {'q': 'Beloved by Toni Morrison'}})
-    update_saved_covers()
+    update_saved_covers() # every time home page is visited saved covers are loded into session
     cover_ids = []
     book_names = []
     published_years = []
@@ -159,6 +155,7 @@ def home_page():
     unsaved_covers = []
 
     if SECTIONS.CURRENT_SECTION == SECTIONS.POPULARP_PRODUCTS:
+        # by deault current section is set to popular products
         
         for i in range(len(PopularBooks)):
             popularBook = PopularBooks[i]
@@ -178,40 +175,41 @@ def home_page():
                 authors.append(recived_authors[PopularCoverIdxs[0]])
                 edition_counts.append(recived_edition_counts[PopularCoverIdxs[0]])
             
+            # checks if popular books covers exist in saved covers if not add cover id to unsaved_covers
             if cover_ids[-1] not in saved_covers:
                 unsaved_covers.append(cover_ids[-1])
 
-        print("unsaved_cover = ", unsaved_covers)
-        print("#################################### END OF UNSAVED COVERS ####################################")
+        # fetch unsaved covers
         if len(unsaved_covers) != 0:
             for unsaved_cover in unsaved_covers:
                 fetchCovers(unsaved_cover)
-    elif SECTIONS.CURRENT_SECTION == SECTIONS.EXPLORE:
+    elif SECTIONS.CURRENT_SECTION == SECTIONS.EXPLORE: 
+        # current section is set to SECTIONS.EXPLORE the explore section is displayed
         book_names, cover_ids, published_years, authors, edition_counts = fetchBooksForExplore()
 
+        # checking for unsaved covers
         for cover_id in cover_ids:
             if cover_id not in saved_covers:
                 unsaved_covers.append(cover_id)
 
+        # fetching unsaved covers
         if len(unsaved_covers) != 0:
             for unsaved_cover in unsaved_covers:
                 fetchCovers(unsaved_cover)
     elif SECTIONS.CURRENT_SECTION == SECTIONS.RECOMMENDATIOS:
+        # if current section is set to SECTION.RECOMMENDATIONS the recommendataions sections is shown
         book_names, cover_ids, published_years, authors, edition_counts = fetchBooksForRecomendations()
 
+        # checking for unsaved covers
         for cover_id in cover_ids:
             if cover_id not in saved_covers:
                 unsaved_covers.append(cover_id)
 
+        # fetching unsaved covers
         if len(unsaved_covers) != 0:
             for unsaved_cover in unsaved_covers:
                 fetchCovers(unsaved_cover)
 
-
-
-    # fetchCovers(cover_ids)
-    print(book_names)
-    print(cover_ids)
     return render_template('home_page.html',
                             book_names=book_names,
                               cover_ids=cover_ids, 
@@ -224,57 +222,15 @@ def home_page():
                               cart_items_count=getCartItemsCount(),
                               notification_count=getUnreadNotificationCount())
 
-@app.route('/update_home_page')
-def update_home_page():
-    global saved_covers
-
-    update_saved_covers()
-    cover_ids = []
-    book_names = []
-    unsaved_covers = []
-
-    if SECTIONS.CURRENT_SECTION == SECTIONS.POPULARP_PRODUCTS:
-        
-        for i in range(len(PopularBooks)):
-            popularBook = PopularBooks[i]
-
-            print("current popular book = ", popularBook)
-            recived_book_names, recived_cover_ids = search({"book": {'q': popularBook}})
-            print("recived_book_names = ", recived_book_names)
-            if len(recived_book_names) >= PopularCoverIdxs[i]:
-                book_names.append(recived_book_names[PopularCoverIdxs[i]])    
-                cover_ids.append(recived_cover_ids[PopularCoverIdxs[i]])
-            else:
-                book_names.append(recived_book_names[0])    
-                cover_ids.append(recived_cover_ids[0])
-            
-            if cover_ids[-1] not in saved_covers:
-                unsaved_covers.append(cover_ids[-1])
-
-        
-        print("unsaved_cover = ", unsaved_covers)
-        print("#################################### END OF UNSAVED COVERS ####################################")
-        if len(unsaved_covers) != 0:
-            for unsaved_cover in unsaved_covers:
-                fetchCovers(unsaved_cover)
-    elif SECTIONS.CURRENT_SECTION == SECTIONS.EXPLORE:
-        pass
-
-    # fetchCovers(cover_ids)
-    print(book_names)
-    print(cover_ids)
-    return render_template('home_page.html',
-                            book_names=book_names,
-                                cover_ids=cover_ids,
-                                sections=SECTIONS.getSections(),
-                                    current_section=SECTIONS.CURRENT_SECTION)
-
 @app.route('/individualproduct_page/<coverId>', methods=["GET", "POST"])
 def individualproduct_page(coverId):
-
+    # getting book details
     current_book = db.session.query(Book).filter(Book.coverId == coverId).first()
+    # getting current user deatils
     current_user = db.session.query(User).filter(User.email == session['user']).first()
+    # checking if current book is added to current user's wishlist
     isFavourite = db.session.query(Wishlist).filter(Wishlist.user_id == current_user.id, Wishlist.cover_id == coverId).first() != None
+    # getting all user reviews for current book
     all_reviews = db.session.query(Review).filter(Review.book_id == current_book.id).all()
     
     reviews = {}
@@ -333,8 +289,14 @@ def cart_page():
 
 @app.route('/billing_page', methods=["GET"])
 def billing_page():
+    error = ""
+
+    if "invalid payment method" in set(session.keys()):
+        # if invalid payment method is selected during payment error is updated and passed to frontend to diplay available otptiosn to user
+        error = "Payment method yet to be added, current only cash on delivery is available"
+
     return render_template('billing_page.html', cart_items_count=getCartItemsCount(),
-                              notification_count=getUnreadNotificationCount())
+                              notification_count=getUnreadNotificationCount(), error=error)
 
 @app.route('/orders_page', methods=['GET'])
 def orders_page():
@@ -384,37 +346,47 @@ def register():
 
     userWithEmail = db.session.get(User, email)
 
-    
+    error = ""
     if password != confirmPassword: # checking if password and confirm password matches
-        print("password dosen't match")
+        error = "password dosen't match"
     elif userWithEmail != None: # checkign if users mail is unique or not
-        print("User with this email already exist")
+        error = "User with this email already exist"
     else: # adding user to data base 
-        # otp = send_notification(email)
-        otp = "0000"
-        user_id = 0
-        if len(User.query.all()) != 0:
-            user_id = User.query.all()[-1].id+1
+        otp = send_notification(email)
+        # otp = "0000"
 
-        newUser = User(id=user_id,
-                   firstName=firstName,
-                   lastName=lastName,
-                   email=email,
-                   password=password,
-                   otp=otp)
+        if otp != -1: # in invalid email is entered otp recived will be -1
+            user_id = 0
+            if len(User.query.all()) != 0:
+                user_id = User.query.all()[-1].id+1
 
-        db.session.add(newUser)
-        db.session.commit()
+            # if no error is encountered new user is created and added to database
+            newUser = User(id=user_id,
+                    firstName=firstName,
+                    lastName=lastName,
+                    email=email,
+                    password=password,
+                    otp=otp)
 
-        
-        session['temp_user'] = email
-        sendNotification("You are successfully registed to BOOKQUEST")
-        return render_template('verification_page.html', state="unverifed")
+            db.session.add(newUser)
+            db.session.commit()
 
-    print("registered user")
+            # when user registered temp user is added to session untill user is verified
+            session['temp_user'] = email
+            sendNotification("You are successfully registed to BOOKQUEST")
+            return render_template('verification_page.html', state="unverifed")
+        else:
+            error = "invalid email"
 
-    # if all the cases fails appropriate error message will be displayed
-    return "<h1>error message will be displayed, for improper signup deails format</h1>"
+    # if all the cases fails appropriate error message will be displayed in the registration page
+    return render_template('signup_page.html',
+                            error=error,
+                              firstName=firstName,
+                              lastName=lastName,
+                              email=email,
+                              password=password,
+                              confirmPassword=confirmPassword)
+
 
 # login route takes care of user data after login button is clicked
 @app.route('/login', methods=['GET', 'POST'])
@@ -436,11 +408,11 @@ def login():
         db.session.commit()
         return render_template('verification_page.html', state="unverified")
 
-    print("login successful and will be redirected to home page")
     
-    session.clear()
-    session['loggedIn'] = True
-    session['user'] = email
+    session.clear() # making sure session doesn't have unwanted data from previous sessions
+    
+    session['loggedIn'] = True # updating session varaible that indicates user is logged in
+    session['user'] = email # assining current user email to current email
     sendNotification("Your login is successfull")
     # if all of the above failuer cases fail user will be directed to homepage
     return redirect('/home_page')
@@ -483,9 +455,12 @@ def verify():
             session['forgot email'] = email
             return render_template("forgot_password_page.html")
         
-        session.clear()
+        session.clear()# clearing the pre-verification session 
+         # adding loggedIn and user session variable to post-verification session
         session['loggedIn'] = True
         session['user'] = email
+
+        # notification is added to notification db along with current user id 
         sendNotification("you identity is sucessfully verified")
         sendNotification("Welcome to BOOKQUEST")
         return redirect('/home_page')
@@ -510,24 +485,28 @@ def update_password():
     else: # if passwords mis-match error message will be displayed
         return render_template('forgot_password_page.html', state='invalid')
 
+# logout route, removes current user form flask session and redirects to loginpage
 @app.route('/logout', methods=['GET'])
 def logout():
+    # change loggeIn state from True to False
     session['loggedIn'] = False
+    # removes user from current session there by logging current user out.
     session.pop('user')
 
     return redirect('/login_page')
 
+# next page route is accessed when user clicks next page button form pages that have paging functionality
 @app.route('/nextPageClicked/<section>', methods=['GET', 'POST'])
 def nextPageClicked(section):
     global explore_page, recommendation_page, popular_page, search_page_number
-    print("nextPage cliecked\nsection = ", section)
 
-    if section == SECTIONS.POPULARP_PRODUCTS:
+    
+    if section == SECTIONS.POPULARP_PRODUCTS: # handels next page clicks from popular products section
         if popular_page != 1:
             popular_page = 2
-    elif section == SECTIONS.EXPLORE:
+    elif section == SECTIONS.EXPLORE: # handels next page clicks from explore section
         explore_page += 1
-    elif section == SECTIONS.RECOMMENDATIOS:
+    elif section == SECTIONS.RECOMMENDATIOS: # handels next page clicks from recommendation section
         book_recommendations= db.session.query(Book).order_by(Book.editionCount.desc()).all() 
         recommendation_page_count = len(book_recommendations) // ITEMS_IN_PAGE
 
@@ -536,10 +515,9 @@ def nextPageClicked(section):
 
         if recommendation_page <  recommendation_page_count:
             recommendation_page += 1
-    elif section.split('-')[0] == 'search':
+    elif section.split('-')[0] == 'search': # handels next page clicks from search results page
         search_query = section.split('-')[1]
 
-        print("search query = ", search_query)
         searchBy = {"book": {'q': search_query}}
         book_names, cover_ids, published_years, authors, edition_counts = search(searchBy=searchBy)
         if len(book_names) > search_page_number * ITEMS_IN_SEARCH_PAGE:
@@ -549,24 +527,24 @@ def nextPageClicked(section):
 
     return redirect('/home_page')
 
+# previous page clicked route: handels previous page button clicks from pages that have paging functionality
 @app.route('/prevPageClicked/<section>', methods=['GET', 'POST'])
 def prevPageClicked(section):
     global explore_page, recommendation_page, popular_page, search_page_number
-    print("prevPage cliecked")
 
-    if section == SECTIONS.POPULARP_PRODUCTS:
+    if section == SECTIONS.POPULARP_PRODUCTS: # handels previous page clicks from popular products section
         if popular_page == 3:
             popular_page = 2
         
         elif popular_page == 2:
             popular_page = 1
-    elif section == SECTIONS.EXPLORE:
+    elif section == SECTIONS.EXPLORE: # handels previous page clicks from explore sections
         if explore_page - 1 != 0:
             explore_page -= 1
-    elif section == SECTIONS.RECOMMENDATIOS:
+    elif section == SECTIONS.RECOMMENDATIOS: # handels previous page clicks from recommendations sections
         if recommendation_page - 1 != 0:
             recommendation_page -= 1
-    elif section.split('-')[0] == 'search':
+    elif section.split('-')[0] == 'search': # handels previous page clicks from search results page
         search_query = section.split('-')[1]
         if search_page_number != 1:
             search_page_number -= 1
@@ -575,6 +553,7 @@ def prevPageClicked(section):
 
     return redirect('/home_page')
 
+# section clicked route: updates current section in home page, based on selection made by user
 @app.route('/sectionClicked/<section>', methods=['GET', 'POST'])
 def sectionClicked(section):
 
@@ -582,6 +561,7 @@ def sectionClicked(section):
 
     return redirect('/home_page')
 
+# add to cart route: handel request form individual product page, when users wants to add a book to cart
 @app.route('/add_to_cart/<book_id>', methods=['GET', 'POST'])
 def add_to_cart(book_id):
     user_id = db.session.query(User).get(session['user']).id
@@ -611,34 +591,43 @@ def add_to_cart(book_id):
 
     return redirect('/cart_page')
 
+# remove item from cart: it handels user request to remove current book from cart
 @app.route('/remove_item_from_cart', methods=['GET', 'POST'])
 def remove_item_from_cart():
     item_id = request.form.get('item_id')
 
+    # deletes respective book form cartItem db
     db.session.delete(db.session.query(CartItem).get(item_id))
     db.session.commit()
 
     return redirect('/cart_page')
 
+# update quantity route: handels user request to increase or decrease the quantity of book in cart
 @app.route('/update_quantity', methods=['GET', 'POST'])
 def update_quantity():
     item_id = request.form.get('item_id')
     quantity = int(request.form.get('quantity'))
 
     cart_item = db.session.query(CartItem).filter(CartItem.id == item_id).first()
-    cart_item.quantity = quantity
-    cart_item.total_price = quantity * cart_item.price
+    cart_item.quantity = quantity # updates quantity 
+    cart_item.total_price = quantity * cart_item.price # updates price according to change in quqntity
 
     db.session.commit()
 
     return redirect('/cart_page')
 
+# make payemnt route: handels user request to make payment and palces the order upon success
+# current only cash on delivery is implemented
 @app.route('/make_payment', methods=['GET', 'POST'])
 def make_payment():
     user_id = db.session.query(User).get(session['user']).id
     books_in_cart = db.session.query(CartItem).filter(CartItem.user_id == user_id)
-    if request.form.get("cvv") == '':
-        print("orderplaced")
+    payment_type = request.form.get('payment type')
+
+    if payment_type == 'option4': # option 4 is cash on delivey
+        # handel cash on delivery orders
+
+        # order success notification is added to notification db for current user
         sendNotification("Your Order is placed")
         for book_in_cart in books_in_cart:
             order_id = 0
@@ -653,26 +642,30 @@ def make_payment():
                               price=book_in_cart.total_price,
                               status="order being packed")
             
+            # order status notification is added to db
             sendNotification(f"{db.session.query(Book).filter(Book.id==book_in_cart.book_id).all()[0].bookName} : {new_order.status}")
             db.session.add(new_order)
             db.session.delete(book_in_cart)
             db.session.commit()
-
+    else:
+        # other payment methods are yet to be implemented
+        session['invalid payment method'] = True # if payment methods not implemented are selected a flag is added to session
+        return redirect('/billing_page')
 
     return redirect('/home_page')
 
+# add to wishlist route: handel user request from individual product page to add current book to wishlist 
 @app.route('/add_to_wishlist/<cover_id>')
 def add_to_wishlist(cover_id):
     wishlist_id = 0
 
+    # create wishlist id that do not conflict with existing items in wishlist
     if len(db.session.query(Wishlist).all()) != 0:
         wishlist_id = db.session.query(Wishlist).all()[-1].id+1
 
-
-    print("new whish list id = ", wishlist_id)
-
     current_user = db.session.query(User).filter(User.email == session['user']).first()
 
+    #  new wishlist item is created and added to db
     new_wishlist_product = Wishlist(id=wishlist_id, user_id=current_user.id, cover_id=cover_id)
     
     db.session.add(new_wishlist_product)
@@ -680,6 +673,7 @@ def add_to_wishlist(cover_id):
 
     return redirect(url_for('individualproduct_page', coverId=cover_id))
 
+# remove from wishlist route: handels user requests from individual product page and wishlist page to remove current book from wishlist
 @app.route('/remove_from_wishlist/<cover_id>/<page>')
 def remove_from_wishlist(cover_id, page):
 
@@ -690,21 +684,25 @@ def remove_from_wishlist(cover_id, page):
     db.session.delete(product_in_wishlist)
     db.session.commit()
 
-    if page == "individual product page":
+
+    if page == "individual product page": # handel remove from wishlist request from indivdual product page
         return redirect(url_for('individualproduct_page', coverId=cover_id))
-    else:
+    else: # handel remove from wishlist request from wishlist page
         return redirect("/wishlist_page")
 
+# search clicked route : handels search request generated by user when go button is clicked
+# featches search data add displays those books in search page
 @app.route('/search_clicked', methods=['GET', 'POST'])
 def search_clicked():
     global saved_covers, search_page_number
 
     update_saved_covers()
-    search_term = request.form.get('search')
-    print("search term in search clicked = ", search_term)
+    search_term = request.form.get('search') # collect search team from frontend 
+
     if search_term == None:
         search_term = request.args.get('search')
 
+    # caputres modified search data retured form helper function "search"
     book_names, cover_ids, published_years, authors, edition_counts = search(searchBy={"book": {'q': search_term}})
 
     unsaved_covers = []
@@ -712,10 +710,12 @@ def search_clicked():
     cover_ids = cover_ids[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
     authors = authors[(search_page_number-1)*ITEMS_IN_SEARCH_PAGE:search_page_number*ITEMS_IN_SEARCH_PAGE]
 
+    # checkes if the covers already exists
     for cover_id in cover_ids:
         if cover_id not in saved_covers:
             unsaved_covers.append(cover_id)
 
+    # if covers doesnt exist fetches those covers
     if len(unsaved_covers) != 0:
         for unsaved_cover in unsaved_covers:
             fetchCovers(unsaved_cover)
@@ -723,15 +723,19 @@ def search_clicked():
     return render_template('search_page.html', book_names=book_names, cover_ids=cover_ids, authors=authors, search_term=search_term, cart_items_count=getCartItemsCount(),
                               notification_count=getUnreadNotificationCount())
 
+# review submmited route: handels book reivew submitions made by user
 @app.route('/review_submited/<cover_id>', methods=['GET', 'POST'])
 def review_submited(cover_id):
+    # fetches user and book information
     user_id = db.session.query(User).filter(User.email == session['user']).first().id
     book_id = db.session.query(Book).filter(Book.coverId == cover_id).first().id
+    # fetches user review form forntend
     rating = request.form['rating']
     review = request.form['review']
 
     review_id = 0
 
+    # create a review id with confilicting with existign review ids
     if len(db.session.query(Review).all()) != 0:
         review_id = db.session.query(Review).all()[-1].id+1
 
@@ -740,40 +744,50 @@ def review_submited(cover_id):
     db.session.add(new_review)
     db.session.commit()
 
-    print("rating = ", rating)
-    print("review = ", review)
     return redirect(url_for('individualproduct_page', coverId=cover_id))
 ################################## helper functions #################################
-# used to send verification mail to user
+
+# used to send verification mail to user during registration
 def send_notification(userEmail):
     verification_code = str(random.randint(0, 9)) + str(random.randint(0, 9)) + str(random.randint(0, 9)) + str(random.randint(0, 9)) 
 
     message = "Subject: BookQuest Verifcation Code\n\nyour verification code is " + verification_code + "." 
 
-    with smtplib.SMTP('smtp.office365.com', 587) as connection:
-        connection.starttls()
-        connection.login(user=os.getenv('EMAIL'), password=os.getenv('PASSWORD'))
-        connection.sendmail(from_addr=os.getenv('EMAIL'), to_addrs=userEmail,
-                            msg=message)
+    # try block cathces error when an invalid email is given by user during registration
+    try:
+
+        with smtplib.SMTP('smtp.office365.com', 587) as connection:
+            connection.starttls()
+            connection.login(user=os.getenv('EMAIL'), password=os.getenv('PASSWORD'))
+            connection.sendmail(from_addr=os.getenv('EMAIL'), to_addrs=userEmail,
+                                msg=message)
+            
+    except:
+        # updates verificaion code to -1 when user enters invalid email which will be caught by try block
+        verification_code = -1
         
     return verification_code
     
+# search fucntion: searches open library api using its search end point
 def search(searchBy):
-    # if already searched return previous result
-    itemType = list(searchBy.keys())[0]
+    # search end point works for seraching by name or by quering by page numnber
+
+    itemType = list(searchBy.keys())[0] # capturing search type
     searchQuery = list(searchBy.values())[0]
     searchTerm = ""
-    if itemType == 'book':
+
+    if itemType == 'book': # based on item type search query is converted to serach term
         searchTerm = searchQuery['q']
     else:
         searchTerm = str(searchQuery)
 
+    # searching search data based to check if the search query is already made
     searchItem = Search.query.filter_by(searchTerm=searchTerm).first()
-    print("searchItem = ", searchItem)
-    if searchItem != None:
+
+
+    if searchItem != None: # if serach is previous made fetches that search data and returns that data
         bookResults = [db.session.query(Book).filter(Book.id == book_search_item.book_id).first() for book_search_item in db.session.query(book_search).filter(book_search.search_id == searchItem.id).all()]
 
-        # print("search ids = ", [book_search_item.id for book_search_item in db.session.query(book_search).filter(book_search.search_id == searchItem.id).all()])
         book_names = [bookResult.bookName for bookResult in bookResults]
         cover_ids = [bookResult.coverId for bookResult in bookResults]
         published_years = [bookResult.publishedYear for bookResult in bookResults]
@@ -854,6 +868,7 @@ def search(searchBy):
 
     return book_names, cover_ids, published_years, authors, edition_counts
 
+# featch books for explore function: fetches books for explore section
 def fetchBooksForExplore():
     global explore_page
     url = 'http://openlibrary.org/search.json'
@@ -865,17 +880,12 @@ def fetchBooksForExplore():
     "page": explore_page
     }
     
-    # response = requests.get(url, params=params)
-    # data = response.json()
-    
-    # if not data['docs']:
-    #     print("nomore data")
-    
     return search({'all_books': params})  
 
+# featch books for recommendataions: fetches books for recomendations section
 def fetchBooksForRecomendations():
     global recommendation_page
-    print("recommendation_page = ", recommendation_page)
+
     book_recommendations = db.session.query(Book).order_by(Book.editionCount.desc()).all()[(recommendation_page-1)*ITEMS_IN_PAGE:recommendation_page*ITEMS_IN_PAGE]
     book_names = []
     cover_ids = []
@@ -892,16 +902,14 @@ def fetchBooksForRecomendations():
 
     return book_names, cover_ids, published_years, authors, edition_counts
 
+# fecth covers fucntion: given the list of coverid, it querris those covers form open library api
 def fetchCovers(cover_ids):
     cover_ids = [cover_ids]
     for cover_id in cover_ids:
-        print("cover_id = ", cover_id)
-        # break
-        cover_image_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
-        # image_directory = os.path.join(home_directory, "images")
-        # if not os.path.exists(image_directory):
-        #     os.mkdir(image_directory)
 
+
+        cover_image_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
+        
         # Download the cover image.
         response = requests.get(cover_image_url)
 
@@ -915,12 +923,13 @@ def fetchCovers(cover_ids):
                 response.status_code, response.content
             ))
 
-        # Save the cover image to a file.
+        # Save the cover image to a cover folder.
         with open(os.path.join(image_directory, f"{cover_id}.jpg"), 'wb') as f:
             f.write(response.content)
 
         update_saved_covers()
 
+# get saved covers fucntion: fetches all the saved cover id's and return as as list
 def getSavedCovers(directory_path):
 
   filenames = []
@@ -935,17 +944,19 @@ def getSavedCovers(directory_path):
 
   return filenames
 
+# gets all the saved covers and updated saved_covers vaiable that keeps track of saved covers
 def update_saved_covers():
     global saved_covers
 
     saved_covers = set(getSavedCovers('static/covers'))
 
+# sendNotification fuction: add a new notification instance to user notification databse 
 def sendNotification(msg):
     userEmail = None
-    print("keys = ", session.keys())
-    if 'temp_user' in set(session.keys()):
+
+    if 'temp_user' in set(session.keys()):# handels user notification when user is in temp user stage i.e during registration
         userEmail = session['temp_user']
-    else:
+    else: # handels user notification after user is successfully verified
         userEmail = session['user']
         
     newNotification = Notification(
@@ -957,23 +968,22 @@ def sendNotification(msg):
     db.session.add(newNotification)
     db.session.commit()
 
+# get cart items  fucntion: return all the items in cart for the current logged in user
 def getCartItems():
     user_id = db.session.query(User).get(session['user']).id
     cart_items = db.session.query(CartItem).filter(CartItem.user_id == user_id).all()
 
     return cart_items
 
+# get cart items count function: return count of all cart items of current user in cart database 
 def getCartItemsCount():
     return len(getCartItems())
 
+# returns all the unread notification count for current user
 def getUnreadNotificationCount():
     unread_notifications = db.session.query(Notification).filter(Notification.user == session['user'], Notification.isRead == False).all()
 
     return len(unread_notifications)
 
-# send_notification("pythontest363@gmail.com")
-
-# book_names, cover_ids = search("3 mistakes of my life")
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=3000)
